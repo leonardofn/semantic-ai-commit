@@ -31,7 +31,7 @@
     "configuration": {
       "title": "Semantic AI Commit",
       "properties": {
-        "semantic-ai-commit.apiKey": {
+        "semanticAiCommit.apiKey": {
           "type": "string",
           "description": "Sua chave de API do Google Gemini.",
           "default": ""
@@ -39,6 +39,9 @@
       }
     }
   },
+  "extensionDependencies": [
+    "vscode.git"
+  ],
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "webpack",
@@ -65,7 +68,7 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
+    "@google/genai": "^1.16.0",
     "simple-git": "^3.28.0"
   }
 }
