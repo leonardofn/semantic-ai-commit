@@ -27,6 +27,16 @@
           "group": "navigation"
         }
       ]
+    },
+    "configuration": {
+      "title": "Semantic AI Commit",
+      "properties": {
+        "semantic-ai-commit.apiKey": {
+          "type": "string",
+          "description": "Sua chave de API do Google Gemini.",
+          "default": ""
+        }
+      }
     }
   },
   "scripts": {
