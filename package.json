@@ -14,10 +14,20 @@
   "contributes": {
     "commands": [
       {
-        "command": "semantic-ai-commit.helloWorld",
-        "title": "Hello World"
+        "command": "semantic-ai-commit.generateCommitMessage",
+        "title": "Generate Semantic Commit Message with AI",
+        "icon": "$(sparkle)"
       }
-    ]
+    ],
+    "menus": {
+      "scm/title": [
+        {
+          "command": "semantic-ai-commit.generateCommitMessage",
+          "when": "scmProvider == 'git'",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
