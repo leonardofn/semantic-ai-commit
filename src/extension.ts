@@ -11,6 +11,18 @@ export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.commands.registerCommand(
     `${extensionName}.generateCommitMessage`,
     async () => {
+      const gitApi = getGitExtensionAPI();
+      if (!gitApi) {
+        vscode.window.showErrorMessage('A API do Git não foi encontrada.');
+        return;
+      }
+
+      const repo = gitApi.repositories[0];
+      if (!repo) {
+        vscode.window.showErrorMessage('Nenhum repositório Git encontrado.');
+        return;
+      }
+
       const diff = await getStagedDiff();
       if (!diff) {
         vscode.window.showInformationMessage(
@@ -27,18 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
         },
         async (progress) => {
           const commitMessage = await generateCommitMessageWithAI(diff);
-
-          if (!commitMessage){
-            return;
-          }
-
-          const gitExtension =
-            vscode.extensions.getExtension<GitExtension>('vscode.git');
-          const gitApi = gitExtension?.exports?.getAPI(1) ?? ({} as API);
-          const { repositories } = gitApi;
-
-          if (repositories && repositories.length > 0) {
-            const repo = gitApi.repositories[0];
+          if (commitMessage) {
             repo.inputBox.value = commitMessage;
           }
         }
@@ -61,16 +62,33 @@ async function getStagedDiff(): Promise<string> {
   return diff ?? '';
 }
 
+function getGitExtensionAPI(): API | undefined {
+  const extensions = vscode.extensions;
+  const gitExtension = extensions.getExtension<GitExtension>('vscode.git');
+
+  return gitExtension?.exports?.getAPI(1);
+}
+
 async function generateCommitMessageWithAI(
   diff: string
 ): Promise<string | null> {
-  const apiKey = vscode.workspace
-    .getConfiguration('semanticAiCommit')
-    .get<string>('apiKey');
+  const config = vscode.workspace.getConfiguration('semanticAiCommit');
+  const apiKey = config.get<string>('apiKey');
+
   if (!apiKey) {
-    vscode.window.showErrorMessage(
-      'A chave de API do Gemini não está configurada. Por favor, configure-a nas configurações do VS Code.'
+    const action = 'Configurar Chave de API';
+    const result = await vscode.window.showErrorMessage(
+      'A chave de API do Gemini não está configurada. Por favor, configure-a nas configurações do VS Code.',
+      action
     );
+
+    if (result === action) {
+      vscode.commands.executeCommand(
+        'workbench.action.openSettings',
+        `@ext:${extensionName}`
+      );
+    }
+
     return null;
   }
 
@@ -93,35 +111,25 @@ async function generateCommitMessageWithAI(
       - chore(<escopo opcional>): tarefas de manutenção (build, dependências, etc.).
       - perf(<escopo opcional>): melhorias de performance.
 
-    ✏️ Escreva apenas uma linha.
-        - Use sempre o imperativo presente (ex: "adiciona suporte a X", "corrige erro em Y").
-        - Foque no propósito da mudança, não nos detalhes técnicos.
-        - O escopo é opcional, mas pode ser incluído entre parênteses após o tipo (ex: feat(api): adiciona autenticação JWT).
+    ✏️ Diretrizes de escrita:
+    - Escreva apenas uma linha.
+    - Use sempre o imperativo presente (ex: "adiciona suporte a X", "corrige erro em Y").
+    - Foque no propósito da mudança, não nos detalhes técnicos.
+    - O escopo é opcional, mas pode ser incluído entre parênteses após o tipo (ex: feat(api): adiciona autenticação JWT).
 
     ❌ Evite:
-        - Mensagens com mais de uma linha.
-        - Listar arquivos, funções ou classes modificadas.
-        - Incluir datas, nomes de pessoas ou números de tickets.
+    - Mensagens com mais de uma linha.
+    - Listar arquivos, funções ou classes modificadas.
+    - Incluir datas, nomes de pessoas ou números de tickets.
+
+    'Aqui está o diff do código para analisar:
+    ${diff}
   `;
 
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: [
-        {
-          parts: [
-            {
-              text: prompt,
-            },
-            {
-              text: 'Dado o seguinte diff do git, gere a mensagem de commit:\n\n',
-            },
-            {
-              text: diff,
-            },
-          ],
-        },
-      ],
+      contents: prompt,
       config: {
         responseMimeType: 'application/json',
         responseJsonSchema: {
