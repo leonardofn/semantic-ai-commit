@@ -1,10 +1,11 @@
+import simpleGit, { SimpleGit } from 'simple-git';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import simpleGit, { SimpleGit } from 'simple-git';
 import * as vscode from 'vscode';
 import { API, GitExtension } from './types/git';
 
 const extensionName = 'semantic-ai-commit';
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -50,16 +51,16 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
 }
 
-async function getStagedDiff(): Promise<string> {
+async function getStagedDiff(): Promise<string | null> {
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders) {
     vscode.window.showErrorMessage('Nenhum espaço de trabalho aberto.');
-    return '';
+    return null;
   }
 
   const git: SimpleGit = simpleGit(workspaceFolders[0].uri.fsPath);
   const diff = await git.diff(['--staged']);
-  return diff ?? '';
+  return diff ?? null;
 }
 
 function getGitExtensionAPI(): API | undefined {
@@ -150,7 +151,15 @@ async function generateCommitMessageWithAI(
       commitMessage = (<CommitMessageResponse>JSON.parse(text)).commitMessage;
     }
 
-    return commitMessage ? removerMarkdown(commitMessage) : null;
+    if (!commitMessage) {
+      vscode.window.showErrorMessage(
+        'Não foi possível gerar a mensagem de commit. Por favor, tente novamente.'
+      );
+
+      return null;
+    }
+
+    return removerMarkdown(commitMessage);
   } catch (error) {
     console.error(error);
     vscode.window.showErrorMessage(
