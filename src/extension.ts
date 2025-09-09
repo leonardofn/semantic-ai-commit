@@ -73,25 +73,8 @@ function getGitExtensionAPI(): API | undefined {
 async function generateCommitMessageWithAI(
   diff: string
 ): Promise<string | null> {
-  const config = vscode.workspace.getConfiguration('semanticAiCommit');
-  const apiKey = config.get<string>('apiKey');
-
-  if (!apiKey) {
-    const action = 'Configurar Chave de API';
-    const result = await vscode.window.showErrorMessage(
-      'A chave de API do Gemini não está configurada. Por favor, configure-a nas configurações do VS Code.',
-      action
-    );
-
-    if (result === action) {
-      vscode.commands.executeCommand(
-        'workbench.action.openSettings',
-        `@ext:${extensionName}`
-      );
-    }
-
-    return null;
-  }
+  const apiKey = await getApiKeyOrPrompt();
+  if (!apiKey) return null;
 
   const { GoogleGenAI, Type } = await import('@google/genai');
   const ai = new GoogleGenAI({ apiKey });
@@ -116,7 +99,7 @@ async function generateCommitMessageWithAI(
     - Escreva apenas uma linha.
     - Use sempre o imperativo presente (ex: "adiciona suporte a X", "corrige erro em Y").
     - Foque no propósito da mudança, não nos detalhes técnicos.
-    - O escopo é opcional, mas pode ser incluído entre parênteses após o tipo (ex: feat(api): adiciona autenticação JWT).
+    - O escopo é opcional, mas pode ser fornecido para informações contextuais adicionais e deve estar contido entre parênteses, por exemplo feat(parser): adiciona capacidade de interpretar arrays.
 
     ❌ Evite:
     - Mensagens com mais de uma linha.
@@ -240,6 +223,30 @@ async function generateCommitMessageWithAI(
 
     return textoLimpo.trim();
   }
+}
+
+async function getApiKeyOrPrompt(): Promise<string | null> {
+  const config = vscode.workspace.getConfiguration(extensionName);
+  const apiKey = config.get<string>('apiKey');
+
+  if (!apiKey) {
+    const action = 'Configurar Chave de API';
+    const result = await vscode.window.showErrorMessage(
+      'A chave de API do Gemini não está configurada. Por favor, configure-a nas configurações do VS Code.',
+      action
+    );
+
+    if (result === action) {
+      await vscode.commands.executeCommand(
+        'workbench.action.openSettings',
+        `@ext:leodev.${extensionName}`
+      );
+    }
+
+    return null;
+  }
+
+  return apiKey;
 }
 
 class CommitMessageResponse {
