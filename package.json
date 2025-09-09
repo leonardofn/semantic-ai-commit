@@ -32,7 +32,7 @@
     "configuration": {
       "title": "Semantic AI Commit",
       "properties": {
-        "semanticAiCommit.apiKey": {
+        "semantic-ai-commit.apiKey": {
           "type": "string",
           "title": "Chave de API do Gemini",
           "description": "Sua chave de API do Gemini para gerar as mensagens de commit.",
