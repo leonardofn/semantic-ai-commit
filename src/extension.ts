@@ -78,36 +78,42 @@ async function generateCommitMessageWithAI(
 
   const { GoogleGenAI, Type } = await import('@google/genai');
   const ai = new GoogleGenAI({ apiKey });
-
   const prompt = `
     Você é uma IA especializada em gerar mensagens de commit em português do Brasil, seguindo o padrão Conventional Commits. Sua tarefa é criar mensagens curtas, claras e concisas, que descrevam a finalidade da alteração no código.
 
     ✅ Regras obrigatórias:
-    - A mensagem de commit deve seguir este formato:
-      <tipo>(<escopo opcional>): <descrição>
-    - Use um dos seguintes tipos no início da mensagem:
-      - feat(<escopo opcional>): nova funcionalidade.
-      - fix(<escopo opcional>): correção de bug.
-      - docs(<escopo opcional>): alteração na documentação.
-      - style(<escopo opcional>): mudanças de formatação (semântica intacta).
-      - refactor(<escopo opcional>): refatoração sem mudança de comportamento.
-      - test(<escopo opcional>): adição ou modificação de testes.
-      - chore(<escopo opcional>): tarefas de manutenção (build, dependências, etc.).
-      - perf(<escopo opcional>): melhorias de performance.
+      - A mensagem de commit deve seguir o formato:
+        <tipo>(<escopo opcional>): <descrição>
+
+      - Utilize um dos seguintes tipos no início da mensagem:
+        - feat: nova funcionalidade.
+        - fix: correção de bug.
+        - docs: alteração na documentação.
+        - style: mudanças de formatação (sem alterar comportamento).
+        - refactor: refatoração sem mudança de comportamento.
+        - test: adição ou modificação de testes.
+        - chore: tarefas de manutenção (build, dependências, etc.).
+        - perf: melhorias de performance.
+
+      - O escopo é opcional, mas pode ser incluído para dar contexto adicional. Deve estar entre parênteses, por exemplo:
+        feat(parser): adiciona suporte a arrays
 
     ✏️ Diretrizes de escrita:
-    - Escreva apenas uma linha.
-    - Use sempre o imperativo presente (ex: "adiciona suporte a X", "corrige erro em Y").
-    - Foque no propósito da mudança, não nos detalhes técnicos.
-    - O escopo é opcional, mas pode ser fornecido para informações contextuais adicionais e deve estar contido entre parênteses, por exemplo feat(parser): adiciona capacidade de interpretar arrays.
+      - Escreva apenas uma linha.
+      - Use sempre o imperativo presente (ex: "adiciona suporte a X", "corrige erro em Y").
+      - Foque no propósito da mudança, não nos detalhes técnicos.
+      - Evite nomes de arquivos, funções, classes, datas, nomes de pessoas ou números de tickets.
 
     ❌ Evite:
-    - Mensagens com mais de uma linha.
-    - Listar arquivos, funções ou classes modificadas.
-    - Incluir datas, nomes de pessoas ou números de tickets.
+      - Mensagens com mais de uma linha.
+      - Listar arquivos, funções ou classes modificadas.
+      - Incluir datas, nomes próprios ou números de tickets.
 
-    'Aqui está o diff do código para analisar:
-    ${diff}
+    📎 Entrada esperada:
+    Você receberá um trecho de código (diff) como entrada. Analise-o e gere uma mensagem de commit apropriada conforme as regras acima.
+
+    Aqui está o diff do código para analisar:
+    ${diff};
   `;
 
   try {
@@ -232,7 +238,7 @@ async function getApiKeyOrPrompt(): Promise<string | null> {
   if (!apiKey) {
     const action = 'Configurar Chave de API';
     const result = await vscode.window.showErrorMessage(
-      'A chave de API do Gemini não está configurada. Por favor, configure-a nas configurações do VS Code.',
+      'A chave de API do Google Gemini não está configurada. Por favor, configure-a nas configurações da extensão.',
       action
     );
 
