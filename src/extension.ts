@@ -152,7 +152,7 @@ async function generateCommitMessageWithAI(
   } catch (error) {
     console.error(error);
     vscode.window.showErrorMessage(
-      'Erro ao gerar a mensagem de commit com o Gemini.'
+      'Erro ao gerar a mensagem de commit com o Gemini. Por favor, tente novamente.'
     );
 
     return null;
