@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
         {
           location: vscode.ProgressLocation.SourceControl,
           title: 'Gerando mensagem de commit com Gemini...',
-          cancellable: false,
+          cancellable: false
         },
         async (progress) => {
           const commitMessage = await generateCommitMessageWithAI(diff);
@@ -126,11 +126,11 @@ async function generateCommitMessageWithAI(
           type: Type.OBJECT,
           properties: {
             commitMessage: {
-              type: Type.STRING,
-            },
-          },
-        },
-      },
+              type: Type.STRING
+            }
+          }
+        }
+      }
     });
 
     const text = response.text;
@@ -186,7 +186,7 @@ async function generateCommitMessageWithAI(
         /!\[(.*?)\]\((.*?)\)/g,
 
         // Código inline: `código`
-        /`([^`]+)`/g,
+        /`([^`]+)`/g
       ]
         .map((r) => r.source)
         .join('|'),
