@@ -46,9 +46,11 @@
   ],
   "scripts": {
     "vscode:prepublish": "npm run package",
+    "vscode:build": "npm run clean && npx vsce package",
     "compile": "webpack",
     "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
+    "clean": "rm -rf *.vsix dist out",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
