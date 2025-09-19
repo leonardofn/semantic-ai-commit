@@ -89,7 +89,7 @@ async function generateCommitMessageWithAI(
         - feat: nova funcionalidade.
         - fix: correção de bug.
         - docs: alteração na documentação.
-        - style: mudanças de formatação (sem alterar comportamento).
+        - style: alteração que não afeta o significado (espaços em branco, formatação, ponto-e-vírgulas ausentes, etc.).
         - refactor: refatoração sem mudança de comportamento.
         - test: adição ou modificação de testes.
         - chore: tarefas de manutenção (build, dependências, etc.).
@@ -99,7 +99,7 @@ async function generateCommitMessageWithAI(
         feat(parser): adiciona suporte a arrays
 
     ✏️ Diretrizes de escrita:
-      - Escreva apenas uma linha.
+      - Escreva apenas uma linha com menos de 80 caracteres.
       - Use sempre o imperativo presente (ex: "adiciona suporte a X", "corrige erro em Y").
       - Foque no propósito da mudança, não nos detalhes técnicos.
       - Evite nomes de arquivos, funções, classes, datas, nomes de pessoas ou números de tickets.
@@ -109,8 +109,8 @@ async function generateCommitMessageWithAI(
       - Listar arquivos, funções ou classes modificadas.
       - Incluir datas, nomes próprios ou números de tickets.
 
-    📎 Entrada esperada:
-    Você receberá um trecho de código (diff) como entrada. Analise-o e gere uma mensagem de commit apropriada conforme as regras acima.
+    📎 Entrada esperada
+      Você receberá um trecho de código (diff) como entrada. Analise-o e gere uma mensagem de commit apropriada conforme as regras acima.
 
     Aqui está o diff do código para analisar:
     ${diff};
