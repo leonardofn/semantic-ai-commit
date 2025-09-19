@@ -16,7 +16,7 @@
     "commands": [
       {
         "command": "semantic-ai-commit.generateCommitMessage",
-        "title": "Generate Semantic Commit Message with AI",
+        "title": "Semantic AI Commit: Gerar Mensagem de Commit",
         "icon": "$(sparkle)"
       }
     ],
