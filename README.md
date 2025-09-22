@@ -1,5 +1,11 @@
 # Semantic AI Commit
 
+<div style="display:flex; align-items:center; justify-content:center;">
+  <img src="https://raw.githubusercontent.com/leonardofn/semantic-ai-commit/refs/heads/develop/assets/logo.png" alt="Logo" width="28%" height="auto">
+</div>
+
+<br/>
+
 Gere mensagens de commit semânticas automaticamente, seguindo o padrão [Conventional Commits](https://www.conventionalcommits.org/pt-br/v1.0.0/), com o poder da IA Gemini do Google. Esta extensão integra-se ao VS Code e ao Git para facilitar a criação de mensagens de commit claras, concisas e padronizadas, em português do Brasil.
 
 ## Funcionalidades
@@ -11,7 +17,7 @@ Gere mensagens de commit semânticas automaticamente, seguindo o padrão [Conven
 
 ## Requisitos
 
-- VS Code v1.103.0 ou superior
+- VS Code v1.91.0 ou superior
 - Conta e chave de API do [Google Gemini](https://aistudio.google.com/app/apikey)
 
 ## Configuração da Extensão
