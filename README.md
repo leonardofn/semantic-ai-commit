@@ -1,71 +1,57 @@
-# semantic-ai-commit README
+# Semantic AI Commit
 
-This is the README for your extension "semantic-ai-commit". After writing up a brief description, we recommend including the following sections.
+<div style="display:flex; align-items:center; justify-content:center;">
+  <img src="https://raw.githubusercontent.com/leonardofn/semantic-ai-commit/refs/heads/develop/assets/logo.png" alt="Logo" width="28%" height="auto">
+</div>
 
-## Features
+<br/>
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Gere mensagens de commit semânticas automaticamente, seguindo o padrão [Conventional Commits](https://www.conventionalcommits.org/pt-br/v1.0.0/), com o poder da IA Gemini do Google. Esta extensão integra-se ao VS Code e ao Git para facilitar a criação de mensagens de commit claras, concisas e padronizadas, em português do Brasil.
 
-For example if there is an image subfolder under your extension project workspace:
+## Funcionalidades
 
-\!\[feature X\]\(images/feature-x.png\)
+- Geração automática de mensagens de commit semânticas com IA (Gemini).
+- Segue o padrão Conventional Commits.
+- Mensagens em português do Brasil, com foco em clareza e concisão.
+- Comando disponível na barra de ações do Git (SCM) e paleta de comandos.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Requisitos
 
-## Requirements
+- VS Code v1.91.0 ou superior
+- Conta e chave de API do [Google Gemini](https://aistudio.google.com/app/apikey)
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## Configuração da Extensão
 
-## Extension Settings
+Esta extensão contribui com a seguinte configuração:
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+- `semantic-ai-commit.apiKey`: **Chave de API do Gemini**. Defina sua chave de API do Gemini para habilitar a geração de mensagens de commit.
 
-For example:
+Para configurar, acesse as configurações do VS Code e procure por "Semantic AI Commit" ou adicione no `settings.json`:
 
-This extension contributes the following settings:
+```json
+{
+ "semantic-ai-commit.apiKey": "SUA_CHAVE_AQUI"
+}
+```
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## Como Usar
 
-## Known Issues
+1. Faça alterações e prepare (stage) os arquivos no Git.
+2. Clique no botão "Semantic AI Commit: Gerar Mensagem de Commit" na barra do SCM ou execute o comando pela paleta (`Ctrl+Shift+P` > "Semantic AI Commit: Gerar Mensagem de Commit").
+3. A mensagem gerada será preenchida automaticamente no campo de commit.
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## Comandos Disponíveis
 
-## Release Notes
+- `Semantic AI Commit: Gerar Mensagem de Commit`: Gera uma mensagem de commit semântica usando IA e preenche o campo de commit automaticamente.
 
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+O comando também está disponível no menu do SCM quando o provedor Git está ativo.
 
 ---
 
-## Following extension guidelines
+## Contribuindo
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+Pull requests são bem-vindos! Para sugestões, abra uma issue.
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+---
 
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**Desfrute de commits mais inteligentes!**
