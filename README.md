@@ -1,7 +1,7 @@
 # Semantic AI Commit
 
 <div style="display:flex; align-items:center; justify-content:center;">
-  <img src="https://raw.githubusercontent.com/leonardofn/semantic-ai-commit/refs/heads/develop/assets/logo.png" alt="Logo" width="28%" height="auto">
+  <img src="https://raw.githubusercontent.com/leonardofn/semantic-ai-commit/main/assets/logo.png" alt="Logo" width="28%" height="auto">
 </div>
 
 <br/>
