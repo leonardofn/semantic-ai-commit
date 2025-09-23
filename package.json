@@ -2,7 +2,7 @@
   "name": "semantic-ai-commit",
   "displayName": "Semantic AI Commit",
   "description": "Generator of semantic commit messages, following the Conventional Commits standard, and integrated with the power of Gemini's artificial intelligence",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "leofndev",
   "license": "MIT",
   "engines": {
