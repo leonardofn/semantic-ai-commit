@@ -107,10 +107,20 @@ async function generateCommitMessageWithAI(
   const apiKey = await getApiKeyOrPrompt();
   if (!apiKey) return null;
 
+  // Lendo a configuração de idioma
+  const config = vscode.workspace.getConfiguration(extensionName);
+  const language = config.get<string>('language') || 'pt-BR';
+
+  const isEnglish = language === 'en';
+
   const { GoogleGenAI, Type } = await import('@google/genai');
   const ai = new GoogleGenAI({ apiKey });
   const prompt = `
-    Você é uma IA especializada em gerar mensagens de commit em português do Brasil, seguindo o padrão Conventional Commits. Sua tarefa é criar mensagens curtas, claras e concisas, que descrevam a finalidade da alteração no código.
+    Você é uma IA especializada em gerar mensagens de commit, seguindo o padrão Conventional Commits. Sua tarefa é criar mensagens curtas, claras e concisas, que descrevam a finalidade da alteração no código.
+
+    O idioma da resposta deve ser: ${
+      isEnglish ? 'Inglês (English)' : 'Português do Brasil'
+    }.
 
     ✅ Regras obrigatórias:
       - A mensagem de commit deve seguir o formato:
@@ -131,7 +141,11 @@ async function generateCommitMessageWithAI(
 
     ✏️ Diretrizes de escrita:
       - Escreva apenas uma linha com menos de 80 caracteres.
-      - Use sempre o imperativo presente (ex: "adiciona suporte a X", "corrige erro em Y").
+      - ${
+        isEnglish
+          ? 'Exemplo: "add support for X", "fix bug in Y"'
+          : 'Exemplo: "adiciona suporte a X", "corrige erro em Y"'
+      }.
       - Foque no propósito da mudança, não nos detalhes técnicos.
       - Evite nomes de arquivos, funções, classes, datas, nomes de pessoas ou números de tickets.
 

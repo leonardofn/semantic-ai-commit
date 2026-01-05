@@ -43,6 +43,20 @@
           "title": "Chave de API do Gemini",
           "description": "Sua chave de API do Gemini para gerar as mensagens de commit.",
           "markdownDescription": "Sua [chave de API do Gemini](https://aistudio.google.com/app/apikey) para gerar as mensagens de commit."
+        },
+        "semantic-ai-commit.language": {
+          "type": "string",
+          "default": "pt-BR",
+          "enum": [
+            "pt-BR",
+            "en"
+          ],
+          "enumDescriptions": [
+            "Português do Brasil",
+            "Inglês"
+          ],
+          "title": "Idioma da Mensagem",
+          "description": "O idioma no qual a mensagem de commit será gerada."
         }
       }
     }
