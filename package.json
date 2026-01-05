@@ -2,7 +2,7 @@
   "name": "semantic-ai-commit",
   "displayName": "Semantic AI Commit",
   "description": "Generator of semantic commit messages, following the Conventional Commits standard, and integrated with the power of Gemini's artificial intelligence",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "publisher": "leofndev",
   "license": "MIT",
   "engines": {
@@ -24,6 +24,10 @@
         "command": "semantic-ai-commit.generateCommitMessage",
         "title": "Semantic AI Commit: Gerar Mensagem de Commit",
         "icon": "$(sparkle)"
+      },
+      {
+        "command": "semantic-ai-commit.changeLanguage",
+        "title": "Semantic AI Commit: Alterar Idioma"
       }
     ],
     "menus": {
@@ -43,6 +47,20 @@
           "title": "Chave de API do Gemini",
           "description": "Sua chave de API do Gemini para gerar as mensagens de commit.",
           "markdownDescription": "Sua [chave de API do Gemini](https://aistudio.google.com/app/apikey) para gerar as mensagens de commit."
+        },
+        "semantic-ai-commit.language": {
+          "type": "string",
+          "default": "pt-BR",
+          "enum": [
+            "pt-BR",
+            "en"
+          ],
+          "enumDescriptions": [
+            "Português do Brasil",
+            "Inglês"
+          ],
+          "title": "Idioma da Mensagem",
+          "description": "O idioma no qual a mensagem de commit será gerada."
         }
       }
     }

@@ -9,22 +9,53 @@ const extensionName = 'semantic-ai-commit';
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  const disposable = vscode.commands.registerCommand(
+  const generateCommand = vscode.commands.registerCommand(
     `${extensionName}.generateCommitMessage`,
-    async () => {
+    async (sourceControl?: any) => {
+      // Recebe o argumento do VS Code
       const gitApi = getGitExtensionAPI();
       if (!gitApi) {
         vscode.window.showErrorMessage('A API do Git não foi encontrada.');
         return;
       }
 
-      const repo = gitApi.repositories[0];
+      // Identificar qual repositório usar
+      let repo = gitApi.repositories[0];
+
+      if (sourceControl) {
+        // Se o comando veio do ícone no menu SCM, procuramos o repositório correspondente
+        const uri = sourceControl._rootUri || sourceControl.rootUri;
+        if (uri) {
+          const repoSCM = gitApi.repositories.find(
+            (r) => r.rootUri.toString() === uri.toString()
+          );
+          repo = repoSCM || repo;
+        }
+      } else if (gitApi.repositories.length > 1) {
+        // Se o comando veio pelo Ctrl+Shift+P e houver mais de um repo, pergunta qual usar
+        const items = gitApi.repositories.map((r) => ({
+          label: r.rootUri.fsPath.split('/').pop() || 'Repositório',
+          description: r.rootUri.fsPath,
+          repo: r
+        }));
+
+        const selected = await vscode.window.showQuickPick(items, {
+          placeHolder: 'Selecione o repositório para gerar o commit'
+        });
+
+        if (!selected) return;
+        repo = selected.repo;
+      }
+
       if (!repo) {
         vscode.window.showErrorMessage('Nenhum repositório Git encontrado.');
         return;
       }
 
-      const diff = await getStagedDiff();
+      // Passar o caminho do repositório específico para pegar o diff
+      const repoPath = repo.rootUri.fsPath;
+      const diff = await getStagedDiff(repoPath);
+
       if (!diff) {
         vscode.window.showInformationMessage(
           'Nenhuma alteração preparada (staged) para o commit.'
@@ -38,7 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
           title: 'Gerando mensagem de commit com Gemini...',
           cancellable: false
         },
-        async (progress) => {
+        async () => {
           const commitMessage = await generateCommitMessageWithAI(diff);
           if (commitMessage) {
             repo.inputBox.value = commitMessage;
@@ -48,19 +79,51 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  context.subscriptions.push(disposable);
+  const changeLanguageCommand = vscode.commands.registerCommand(
+    `${extensionName}.changeLanguage`,
+    async () => {
+      const options = [
+        {
+          label: 'Português do Brasil',
+          value: 'pt-BR',
+          description: 'Mensagens em Português'
+        },
+        { label: 'English', value: 'en', description: 'Messages in English' }
+      ];
+
+      const selected = await vscode.window.showQuickPick(options, {
+        placeHolder: 'Selecione o idioma das mensagens de commit'
+      });
+
+      if (selected) {
+        const config = vscode.workspace.getConfiguration(extensionName);
+        // Atualiza a configuração globalmente
+        await config.update(
+          'language',
+          selected.value,
+          vscode.ConfigurationTarget.Global
+        );
+
+        vscode.window.showInformationMessage(
+          `Idioma do Semantic AI Commit alterado para: ${selected.label}`
+        );
+      }
+    }
+  );
+
+  context.subscriptions.push(generateCommand, changeLanguageCommand);
 }
 
-async function getStagedDiff(): Promise<string | null> {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  if (!workspaceFolders) {
-    vscode.window.showErrorMessage('Nenhum espaço de trabalho aberto.');
+async function getStagedDiff(repoPath: string): Promise<string | null> {
+  try {
+    const git: SimpleGit = simpleGit(repoPath);
+    const diff = await git.diff(['--staged']);
+    return diff || null;
+  } catch (error) {
+    vscode.window.showErrorMessage('Erro ao obter diff.');
+    console.error('Erro ao obter diff:', error);
     return null;
   }
-
-  const git: SimpleGit = simpleGit(workspaceFolders[0].uri.fsPath);
-  const diff = await git.diff(['--staged']);
-  return diff ?? null;
 }
 
 function getGitExtensionAPI(): API | undefined {
@@ -76,10 +139,20 @@ async function generateCommitMessageWithAI(
   const apiKey = await getApiKeyOrPrompt();
   if (!apiKey) return null;
 
+  // Lendo a configuração de idioma
+  const config = vscode.workspace.getConfiguration(extensionName);
+  const language = config.get<string>('language') || 'pt-BR';
+
+  const isEnglish = language === 'en';
+
   const { GoogleGenAI, Type } = await import('@google/genai');
   const ai = new GoogleGenAI({ apiKey });
   const prompt = `
-    Você é uma IA especializada em gerar mensagens de commit em português do Brasil, seguindo o padrão Conventional Commits. Sua tarefa é criar mensagens curtas, claras e concisas, que descrevam a finalidade da alteração no código.
+    Você é uma IA especializada em gerar mensagens de commit, seguindo o padrão Conventional Commits. Sua tarefa é criar mensagens curtas, claras e concisas, que descrevam a finalidade da alteração no código.
+
+    O idioma da resposta deve ser: ${
+      isEnglish ? 'Inglês (English)' : 'Português do Brasil'
+    }.
 
     ✅ Regras obrigatórias:
       - A mensagem de commit deve seguir o formato:
@@ -100,7 +173,11 @@ async function generateCommitMessageWithAI(
 
     ✏️ Diretrizes de escrita:
       - Escreva apenas uma linha com menos de 80 caracteres.
-      - Use sempre o imperativo presente (ex: "adiciona suporte a X", "corrige erro em Y").
+      - ${
+        isEnglish
+          ? 'Exemplo: "add support for X", "fix bug in Y"'
+          : 'Exemplo: "adiciona suporte a X", "corrige erro em Y"'
+      }.
       - Foque no propósito da mudança, não nos detalhes técnicos.
       - Evite nomes de arquivos, funções, classes, datas, nomes de pessoas ou números de tickets.
 
