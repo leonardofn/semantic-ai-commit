@@ -11,20 +11,51 @@ const extensionName = 'semantic-ai-commit';
 export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.commands.registerCommand(
     `${extensionName}.generateCommitMessage`,
-    async () => {
+    async (sourceControl?: any) => {
+      // Recebe o argumento do VS Code
       const gitApi = getGitExtensionAPI();
       if (!gitApi) {
         vscode.window.showErrorMessage('A API do Git não foi encontrada.');
         return;
       }
 
-      const repo = gitApi.repositories[0];
+      // Identificar qual repositório usar
+      let repo = gitApi.repositories[0];
+
+      if (sourceControl) {
+        // Se o comando veio do ícone no menu SCM, procuramos o repositório correspondente
+        const uri = sourceControl._rootUri || sourceControl.rootUri;
+        if (uri) {
+          const repoSCM = gitApi.repositories.find(
+            (r) => r.rootUri.toString() === uri.toString()
+          );
+          repo = repoSCM || repo;
+        }
+      } else if (gitApi.repositories.length > 1) {
+        // Se o comando veio pelo Ctrl+Shift+P e houver mais de um repo, pergunta qual usar
+        const items = gitApi.repositories.map((r) => ({
+          label: r.rootUri.fsPath.split('/').pop() || 'Repositório',
+          description: r.rootUri.fsPath,
+          repo: r
+        }));
+
+        const selected = await vscode.window.showQuickPick(items, {
+          placeHolder: 'Selecione o repositório para gerar o commit'
+        });
+
+        if (!selected) return;
+        repo = selected.repo;
+      }
+
       if (!repo) {
         vscode.window.showErrorMessage('Nenhum repositório Git encontrado.');
         return;
       }
 
-      const diff = await getStagedDiff();
+      // Passar o caminho do repositório específico para pegar o diff
+      const repoPath = repo.rootUri.fsPath;
+      const diff = await getStagedDiff(repoPath);
+
       if (!diff) {
         vscode.window.showInformationMessage(
           'Nenhuma alteração preparada (staged) para o commit.'
@@ -38,7 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
           title: 'Gerando mensagem de commit com Gemini...',
           cancellable: false
         },
-        async (progress) => {
+        async () => {
           const commitMessage = await generateCommitMessageWithAI(diff);
           if (commitMessage) {
             repo.inputBox.value = commitMessage;
@@ -51,16 +82,16 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
 }
 
-async function getStagedDiff(): Promise<string | null> {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  if (!workspaceFolders) {
-    vscode.window.showErrorMessage('Nenhum espaço de trabalho aberto.');
+async function getStagedDiff(repoPath: string): Promise<string | null> {
+  try {
+    const git: SimpleGit = simpleGit(repoPath);
+    const diff = await git.diff(['--staged']);
+    return diff || null;
+  } catch (error) {
+    vscode.window.showErrorMessage('Erro ao obter diff.');
+    console.error('Erro ao obter diff:', error);
     return null;
   }
-
-  const git: SimpleGit = simpleGit(workspaceFolders[0].uri.fsPath);
-  const diff = await git.diff(['--staged']);
-  return diff ?? null;
 }
 
 function getGitExtensionAPI(): API | undefined {
