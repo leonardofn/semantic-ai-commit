@@ -24,6 +24,10 @@
         "command": "semantic-ai-commit.generateCommitMessage",
         "title": "Semantic AI Commit: Gerar Mensagem de Commit",
         "icon": "$(sparkle)"
+      },
+      {
+        "command": "semantic-ai-commit.changeLanguage",
+        "title": "Semantic AI Commit: Alterar Idioma"
       }
     ],
     "menus": {

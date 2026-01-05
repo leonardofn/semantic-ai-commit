@@ -9,7 +9,7 @@ const extensionName = 'semantic-ai-commit';
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  const disposable = vscode.commands.registerCommand(
+  const generateCommand = vscode.commands.registerCommand(
     `${extensionName}.generateCommitMessage`,
     async (sourceControl?: any) => {
       // Recebe o argumento do VS Code
@@ -79,7 +79,39 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  context.subscriptions.push(disposable);
+  const changeLanguageCommand = vscode.commands.registerCommand(
+    `${extensionName}.changeLanguage`,
+    async () => {
+      const options = [
+        {
+          label: 'Português do Brasil',
+          value: 'pt-BR',
+          description: 'Mensagens em Português'
+        },
+        { label: 'English', value: 'en', description: 'Messages in English' }
+      ];
+
+      const selected = await vscode.window.showQuickPick(options, {
+        placeHolder: 'Selecione o idioma das mensagens de commit'
+      });
+
+      if (selected) {
+        const config = vscode.workspace.getConfiguration(extensionName);
+        // Atualiza a configuração globalmente
+        await config.update(
+          'language',
+          selected.value,
+          vscode.ConfigurationTarget.Global
+        );
+
+        vscode.window.showInformationMessage(
+          `Idioma do Semantic AI Commit alterado para: ${selected.label}`
+        );
+      }
+    }
+  );
+
+  context.subscriptions.push(generateCommand, changeLanguageCommand);
 }
 
 async function getStagedDiff(repoPath: string): Promise<string | null> {
