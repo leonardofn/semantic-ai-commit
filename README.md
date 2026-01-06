@@ -1,6 +1,6 @@
 # Semantic AI Commit
 
-![](https://img.shields.io/badge/version-0.0.3-blue.svg) ![VS Code](https://img.shields.io/badge/VS%20Code-1.91.0%2B-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Contributors](https://img.shields.io/badge/contributors-1-orange.svg)
+![](https://img.shields.io/badge/version-0.1.0-blue.svg) ![VS Code](https://img.shields.io/badge/VS%20Code-1.91.0%2B-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Contributors](https://img.shields.io/badge/contributors-1-orange.svg)
 
 ![Logo](https://raw.githubusercontent.com/leonardofn/semantic-ai-commit/main/assets/images/logo.png)
 
@@ -10,7 +10,7 @@ Gere mensagens de commit semânticas automaticamente, seguindo o padrão [Conven
 
 - Geração automática de mensagens de commit semânticas com IA (Gemini).
 - Segue o padrão Conventional Commits.
-- Mensagens em português do Brasil, com foco em clareza e concisão.
+- Suporte para mensagens em português do Brasil e inglês, com foco em clareza e concisão.
 - Comando disponível na barra de ações do Git (SCM) e paleta de comandos.
 
 ## Requisitos
@@ -48,9 +48,8 @@ Para configurar, acesse as configurações do VS Code e procure por "Semantic AI
 
 ## Comandos Disponíveis
 
-- `Semantic AI Commit: Gerar Mensagem de Commit`: Gera uma mensagem de commit semântica usando IA e preenche o campo de commit automaticamente.
-
-O comando também está disponível no menu do SCM quando o provedor Git está ativo.
+- `Semantic AI Commit: Gerar Mensagem de Commit`: Gera uma mensagem de commit semântica usando IA e preenche o campo de commit automaticamente. O comando também está disponível no menu do SCM quando o provedor Git está ativo.
+- `Semantic AI Commit: Alterar Idioma`: Alterna entre português do Brasil e inglês para as mensagens de commit geradas.
 
 ---
 
