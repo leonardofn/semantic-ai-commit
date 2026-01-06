@@ -2,6 +2,14 @@
 
 All notable changes to the "Semantic AI Commit" extension will be documented in this file.
 
+## v0.1.2 - 06/01/2026
+
+- Added unit tests for extension commands and functionalities.
+
+## v0.1.1 - 06/01/2026
+
+- Added GitHub Actions workflow for publishing the extension.
+
 ## v0.1.0 - 05/01/2026
 
 - Enhanced selection for multiple open repositories.
