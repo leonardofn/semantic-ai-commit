@@ -80,6 +80,7 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src",
+    "test:dev": "npm run lint && npm run compile && npm run test",
     "test": "vscode-test"
   },
   "devDependencies": {

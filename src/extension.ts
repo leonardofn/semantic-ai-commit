@@ -234,78 +234,6 @@ async function generateCommitMessageWithAI(
 
     return null;
   }
-
-  function removerMarkdown(markdownString: string) {
-    // Regex para remover a formatação Markdown
-    const regex = new RegExp(
-      [
-        // Negrito e itálico: **, **, *, * ou _
-        /(\*\*|__)(?=\S)(.+?)(?!\S)\1/g,
-        /(\*|_)(?=\S)(.+?)(?!\S)\1/g,
-
-        // Cabeçalhos (h1, h2, etc.)
-        /^(#+)\s*(.*)/gm,
-
-        // Citações em bloco (>)
-        /^>\s+(.*)/gm,
-
-        // Listas: -, *, 1.
-        /^\s*(\*|\-|\+)\s+(.*)/gm,
-        /^\s*\d+\.\s+(.*)/gm,
-
-        // Linhas horizontais (---)
-        /^\s*([*-_])\s*\1\s*\1(\s*)$/gm,
-
-        // Links: [texto](url)
-        /\[(.*?)\]\((.*?)\)/g,
-
-        // Imagens: ![alt](url)
-        /!\[(.*?)\]\((.*?)\)/g,
-
-        // Código inline: `código`
-        /`([^`]+)`/g
-      ]
-        .map((r) => r.source)
-        .join('|'),
-      'gm'
-    );
-
-    // Substitui todas as correspondências por uma string vazia
-    const textoLimpo = markdownString.replace(regex, (match, p1, p2, p3) => {
-      // Para links e imagens, extrai apenas o texto
-      if (match.startsWith('[') || match.startsWith('![')) {
-        return p1; // p1 é o conteúdo dentro de []
-      }
-      // Para cabeçalhos, citações, listas, retorna o segundo grupo de captura
-      if (
-        match.startsWith('#') ||
-        match.startsWith('>') ||
-        match.startsWith('-') ||
-        match.startsWith('*') ||
-        match.startsWith('+') ||
-        /^\s*\d+\.\s+/.test(match)
-      ) {
-        return p2;
-      }
-      // Para negrito/itálico, retorna o segundo grupo
-      if (
-        match.startsWith('**') ||
-        match.startsWith('__') ||
-        match.startsWith('*') ||
-        match.startsWith('_')
-      ) {
-        return p2;
-      }
-      // Para código inline, retorna o primeiro grupo
-      if (match.startsWith('`')) {
-        return p1;
-      }
-      // Para tudo o mais, retorna uma string vazia
-      return '';
-    });
-
-    return textoLimpo.trim();
-  }
 }
 
 async function getApiKeyOrPrompt(): Promise<string | null> {
@@ -336,5 +264,42 @@ class CommitMessageResponse {
   commitMessage!: string;
 }
 
+function removerMarkdown(markdownString: string) {
+  let textoLimpo = markdownString;
+
+  // Remove negrito e itálico
+  textoLimpo = textoLimpo.replace(/\*\*(.*?)\*\*/g, '$1');
+  textoLimpo = textoLimpo.replace(/__(.*?)__/g, '$1');
+  textoLimpo = textoLimpo.replace(/\*(.*?)\*/g, '$1');
+  textoLimpo = textoLimpo.replace(/_(.*?)_/g, '$1');
+
+  // Remove cabeçalhos
+  textoLimpo = textoLimpo.replace(/^#+\s*(.*)$/gm, '$1');
+
+  // Remove citações
+  textoLimpo = textoLimpo.replace(/^>\s+(.*)$/gm, '$1');
+
+  // Remove listas
+  textoLimpo = textoLimpo.replace(/^\s*[\*\-\+]\s+(.*)$/gm, '$1');
+  textoLimpo = textoLimpo.replace(/^\s*\d+\.\s+(.*)$/gm, '$1');
+
+  // Remove linhas horizontais
+  textoLimpo = textoLimpo.replace(/^\s*[\*\-_]{3,}\s*$/gm, '');
+
+  // Remove links e imagens
+  textoLimpo = textoLimpo.replace(/!\[.*?\]\(.*?\)/g, '');
+  textoLimpo = textoLimpo.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+
+  // Remove código inline e blocos
+  textoLimpo = textoLimpo.replace(/```([\s\S]*?)```/g, '$1');
+  textoLimpo = textoLimpo.replace(/`([^`]+)`/g, '$1');
+
+  return textoLimpo.trim();
+}
+
 // This method is called when your extension is deactivated
 export function deactivate() {}
+
+// Export functions for testing
+export { generateCommitMessageWithAI, getApiKeyOrPrompt, getGitExtensionAPI, getStagedDiff, removerMarkdown };
+
