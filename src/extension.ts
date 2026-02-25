@@ -1,7 +1,6 @@
 import simpleGit, { SimpleGit } from 'simple-git';
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { ApiErrorMessage, ApiErrorResponse } from './interfaces/api-error';
 import { API, GitExtension } from './types/git';
 
 const extensionName = 'semantic-ai-commit';
@@ -142,62 +141,71 @@ async function generateCommitMessageWithAI(
   // Lendo a configuração de idioma
   const config = vscode.workspace.getConfiguration(extensionName);
   const language = config.get<string>('language') || 'pt-BR';
-
   const isEnglish = language === 'en';
 
-  const { GoogleGenAI, Type } = await import('@google/genai');
+  const {
+    GoogleGenAI,
+    Type,
+    ApiError,
+    HarmBlockThreshold,
+    HarmCategory,
+    ThinkingLevel
+  } = await import('@google/genai');
   const ai = new GoogleGenAI({ apiKey });
+
   const prompt = `
-    Você é uma IA especializada em gerar mensagens de commit, seguindo o padrão Conventional Commits. Sua tarefa é criar mensagens curtas, claras e concisas, que descrevam a finalidade da alteração no código.
+    Você é uma IA especialista em gerar mensagens de commit seguindo o padrão Conventional Commits.
 
-    O idioma da resposta deve ser: ${
-      isEnglish ? 'Inglês (English)' : 'Português do Brasil'
-    }.
+    Analise o diff abaixo e gere UMA ÚNICA LINHA de mensagem de commit, curta, clara e objetiva, SEM EXPLICAÇÕES.
 
-    ✅ Regras obrigatórias:
-      - A mensagem de commit deve seguir o formato:
-        <tipo>(<escopo opcional>): <descrição>
+    CONTEXTO:
+    - O diff representa alterações em um repositório de código.
+    - A mensagem deve descrever a intenção principal da mudança, não detalhes técnicos.
 
-      - Utilize um dos seguintes tipos no início da mensagem:
-        - feat: nova funcionalidade.
-        - fix: correção de bug.
-        - docs: alteração na documentação.
-        - style: alteração que não afeta o significado (espaços em branco, formatação, ponto-e-vírgulas ausentes, etc.).
-        - refactor: refatoração sem mudança de comportamento.
-        - test: adição ou modificação de testes.
-        - chore: tarefas de manutenção (build, dependências, etc.).
-        - perf: melhorias de performance.
+    IDIOMA DA RESPOSTA:
+    - Responda apenas em ${isEnglish ? 'English' : 'Português do Brasil'}.
 
-      - O escopo é opcional, mas pode ser incluído para dar contexto adicional. Deve estar entre parênteses, por exemplo:
-        feat(parser): adiciona suporte a arrays
+    REGRAS OBRIGATÓRIAS:
+    - Estrutura: <tipo>(<escopo opcional>): <descrição>
+    - Tipos permitidos:
+      feat: nova funcionalidade
+      fix: correção de bug
+      docs: alteração na documentação
+      style: alteração de formatação, sem impacto no código
+      refactor: refatoração sem mudança de comportamento
+      test: adição/modificação de testes
+      chore: tarefas de manutenção (build, dependências, etc.)
+      perf: melhoria de performance
+    - O escopo é opcional, curto e entre parênteses.
+    - Máximo de 100 caracteres.
+    - Use sempre o modo imperativo.
+    - NÃO inclua nomes de arquivos, funções, classes, variáveis, datas, números de ticket ou nomes próprios.
+    - NÃO copie nada do diff.
+    - NÃO explique, apenas forneça a mensagem.
+    - NÃO use frases genéricas como "atualiza código" ou "faz alterações".
 
-    ✏️ Diretrizes de escrita:
-      - Escreva apenas uma linha com menos de 80 caracteres.
-      - ${
-        isEnglish
-          ? 'Exemplo: "add support for X", "fix bug in Y"'
-          : 'Exemplo: "adiciona suporte a X", "corrige erro em Y"'
-      }.
-      - Foque no propósito da mudança, não nos detalhes técnicos.
-      - Evite nomes de arquivos, funções, classes, datas, nomes de pessoas ou números de tickets.
+    ORIENTAÇÕES:
+    - Se o diff for ambíguo, gere a descrição mais provável da intenção.
+    - Seja direto e objetivo.
+    - NÃO gere markdown, apenas texto puro no campo "commitMessage".
 
-    ❌ Evite:
-      - Mensagens com mais de uma linha.
-      - Listar arquivos, funções ou classes modificadas.
-      - Incluir datas, nomes próprios ou números de tickets.
-
-    📎 Entrada esperada
-      Você receberá um trecho de código (diff) como entrada. Analise-o e gere uma mensagem de commit apropriada conforme as regras acima.
-
-    Aqui está o diff do código para analisar:
-    ${diff};
+    DIFF PARA ANÁLISE:
+    ${diff}
   `;
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
+      model: 'gemini-3-flash-preview',
       config: {
+        thinkingConfig: {
+          thinkingLevel: ThinkingLevel.MEDIUM
+        },
+        safetySettings: [
+          {
+            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
+          }
+        ],
         responseMimeType: 'application/json',
         responseJsonSchema: {
           type: Type.OBJECT,
@@ -207,7 +215,8 @@ async function generateCommitMessageWithAI(
             }
           }
         }
-      }
+      },
+      contents: prompt
     });
 
     const text = response.text;
@@ -228,9 +237,20 @@ async function generateCommitMessageWithAI(
     return removerMarkdown(commitMessage);
   } catch (error) {
     console.error(error);
-    vscode.window.showErrorMessage(
-      'Erro ao gerar a mensagem de commit com o Gemini. Por favor, tente novamente.'
-    );
+    let errorMessage =
+      'Erro ao gerar a mensagem de commit com o Gemini. Por favor, tente novamente.';
+
+    if (error instanceof ApiError) {
+      const apiError = error as ApiErrorResponse;
+      try {
+        const messageParsed: ApiErrorMessage = JSON.parse(apiError.message);
+        errorMessage = messageParsed.error?.message || error.message;
+      } catch {
+        errorMessage = error.message;
+      }
+    }
+
+    vscode.window.showErrorMessage(errorMessage);
 
     return null;
   }
@@ -301,5 +321,11 @@ function removerMarkdown(markdownString: string) {
 export function deactivate() {}
 
 // Export functions for testing
-export { generateCommitMessageWithAI, getApiKeyOrPrompt, getGitExtensionAPI, getStagedDiff, removerMarkdown };
+export {
+  generateCommitMessageWithAI,
+  getApiKeyOrPrompt,
+  getGitExtensionAPI,
+  getStagedDiff,
+  removerMarkdown
+};
 
