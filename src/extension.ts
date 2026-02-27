@@ -2,6 +2,7 @@ import simpleGit, { SimpleGit } from 'simple-git';
 import * as vscode from 'vscode';
 import { GeminiModel } from './enums/gemini-model';
 import { ApiErrorMessage, ApiErrorResponse } from './interfaces/api-error';
+import { CommitMessageResponse } from './interfaces/commit-message';
 import { API, GitExtension } from './types/git';
 
 const extensionName = 'semantic-ai-commit';
@@ -127,7 +128,7 @@ export function activate(context: vscode.ExtensionContext) {
         {
           label: 'Gemini 3 Flash',
           description:
-            'combina as capacidades de raciocínio do Gemini 3 Pro com os níveis de latência, eficiência e custo da linha Flash.',
+            'Combina as capacidades de raciocínio do Gemini 3 Pro com os níveis de latência, eficiência e custo da linha Flash.',
           value: GeminiModel.GEMINI_3_FLASH_PREVIEW
         },
         {
@@ -139,13 +140,13 @@ export function activate(context: vscode.ExtensionContext) {
         {
           label: 'Gemini 2.5 Flash',
           description:
-            'Modelo mais rápido e eficiente, ideal para tarefas simples.',
+            'Modelo rápido e eficiente, ideal para tarefas simples.',
           value: GeminiModel.GEMINI_2_5_FLASH
         },
         {
           label: 'Gemini 2.5 Pro',
           description:
-            'Modelo de raciocínio mais avançado do Gemini, capaz de resolver problemas complexos.',
+            'Modelo de raciocínio avançado do Gemini, capaz de resolver problemas complexos.',
           value: GeminiModel.GEMINI_2_5_PRO
         }
       ];
@@ -298,7 +299,7 @@ async function generateCommitMessageWithAI(
       return null;
     }
 
-    return removerMarkdown(commitMessage);
+    return commitMessage;
   } catch (error) {
     console.error(error);
     let errorMessage =
@@ -344,42 +345,7 @@ async function getApiKeyOrPrompt(): Promise<string | null> {
   return apiKey;
 }
 
-class CommitMessageResponse {
-  commitMessage!: string;
-}
 
-function removerMarkdown(markdownString: string) {
-  let textoLimpo = markdownString;
-
-  // Remove negrito e itálico
-  textoLimpo = textoLimpo.replace(/\*\*(.*?)\*\*/g, '$1');
-  textoLimpo = textoLimpo.replace(/__(.*?)__/g, '$1');
-  textoLimpo = textoLimpo.replace(/\*(.*?)\*/g, '$1');
-  textoLimpo = textoLimpo.replace(/_(.*?)_/g, '$1');
-
-  // Remove cabeçalhos
-  textoLimpo = textoLimpo.replace(/^#+\s*(.*)$/gm, '$1');
-
-  // Remove citações
-  textoLimpo = textoLimpo.replace(/^>\s+(.*)$/gm, '$1');
-
-  // Remove listas
-  textoLimpo = textoLimpo.replace(/^\s*[\*\-\+]\s+(.*)$/gm, '$1');
-  textoLimpo = textoLimpo.replace(/^\s*\d+\.\s+(.*)$/gm, '$1');
-
-  // Remove linhas horizontais
-  textoLimpo = textoLimpo.replace(/^\s*[\*\-_]{3,}\s*$/gm, '');
-
-  // Remove links e imagens
-  textoLimpo = textoLimpo.replace(/!\[.*?\]\(.*?\)/g, '');
-  textoLimpo = textoLimpo.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-
-  // Remove código inline e blocos
-  textoLimpo = textoLimpo.replace(/```([\s\S]*?)```/g, '$1');
-  textoLimpo = textoLimpo.replace(/`([^`]+)`/g, '$1');
-
-  return textoLimpo.trim();
-}
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
@@ -389,7 +355,6 @@ export {
   generateCommitMessageWithAI,
   getApiKeyOrPrompt,
   getGitExtensionAPI,
-  getStagedDiff,
-  removerMarkdown
+  getStagedDiff
 };
 
