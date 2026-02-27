@@ -122,31 +122,27 @@ export function activate(context: vscode.ExtensionContext) {
         {
           label: 'Gemini 3.1 Pro',
           description:
-            'Modelo de raciocínio mais avançado do Gemini, capaz de resolver problemas complexos.',
+            'O modelo mais avançado para problemas altamente complexos.',
           value: GeminiModel.GEMINI_3_1_PRO_PREVIEW
         },
         {
           label: 'Gemini 3 Flash',
-          description:
-            'Combina as capacidades de raciocínio do Gemini 3 Pro com os níveis de latência, eficiência e custo da linha Flash.',
+          description: 'O poder do Pro com a velocidade e eficiência do Flash.',
           value: GeminiModel.GEMINI_3_FLASH_PREVIEW
         },
         {
           label: 'Gemini 3 Pro',
-          description:
-            'Modelo de raciocínio mais avançado do Gemini, capaz de resolver problemas complexos.',
+          description: 'Raciocínio de alto desempenho para tarefas complexas.',
           value: GeminiModel.GEMINI_3_PRO_PREVIEW
         },
         {
           label: 'Gemini 2.5 Flash',
-          description:
-            'Modelo rápido e eficiente, ideal para tarefas simples.',
+          description: 'Rápido e eficiente, ideal para tarefas simples.',
           value: GeminiModel.GEMINI_2_5_FLASH
         },
         {
           label: 'Gemini 2.5 Pro',
-          description:
-            'Modelo de raciocínio avançado do Gemini, capaz de resolver problemas complexos.',
+          description: 'Raciocínio avançado para resolução de problemas.',
           value: GeminiModel.GEMINI_2_5_PRO
         }
       ];
@@ -206,7 +202,8 @@ async function generateCommitMessageWithAI(
   const language = config.get<string>('language') || 'pt-BR';
   const isEnglish = language === 'en';
   const geminiModel =
-    (config.get<string>('geminiModel') as GeminiModel) || GeminiModel.GEMINI_3_FLASH_PREVIEW;
+    (config.get<string>('geminiModel') as GeminiModel) ||
+    GeminiModel.GEMINI_3_FLASH_PREVIEW;
 
   const {
     GoogleGenAI,
@@ -344,8 +341,6 @@ async function getApiKeyOrPrompt(): Promise<string | null> {
 
   return apiKey;
 }
-
-
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
