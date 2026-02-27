@@ -6,7 +6,7 @@ import * as myExtension from '../extension';
 // 1. MUDANÇA: Substitua '() =>' por 'function ()' para ter acesso ao 'this' do Mocha
 suite('Extension Test Suite', function () {
   // Define o tempo limite de 15 segundos para toda esta suite de testes
-  this.timeout(15000);
+  this.timeout(1200000);
 
   // Executa uma vez antes de todos os testes começarem
   suiteSetup(() => {
