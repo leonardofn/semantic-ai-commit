@@ -1,5 +1,6 @@
 import simpleGit, { SimpleGit } from 'simple-git';
 import * as vscode from 'vscode';
+import { GeminiModel } from './enums/gemini-model';
 import { ApiErrorMessage, ApiErrorResponse } from './interfaces/api-error';
 import { API, GitExtension } from './types/git';
 
@@ -8,6 +9,7 @@ const extensionName = 'semantic-ai-commit';
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  // Comando para gerar mensagens de commit
   const generateCommand = vscode.commands.registerCommand(
     `${extensionName}.generateCommitMessage`,
     async (sourceControl?: any) => {
@@ -78,6 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
+  // Comando para alterar o idioma das mensagens de commit
   const changeLanguageCommand = vscode.commands.registerCommand(
     `${extensionName}.changeLanguage`,
     async () => {
@@ -110,7 +113,66 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  context.subscriptions.push(generateCommand, changeLanguageCommand);
+  // Comando para selecionar o modelo Gemini
+  const changeModelCommand = vscode.commands.registerCommand(
+    `${extensionName}.changeGeminiModel`,
+    async () => {
+      const modelOptions = [
+        {
+          label: 'Gemini 3.1 Pro',
+          description:
+            'Modelo de raciocínio mais avançado do Gemini, capaz de resolver problemas complexos.',
+          value: GeminiModel.GEMINI_3_1_PRO_PREVIEW
+        },
+        {
+          label: 'Gemini 3 Flash',
+          description:
+            'combina as capacidades de raciocínio do Gemini 3 Pro com os níveis de latência, eficiência e custo da linha Flash.',
+          value: GeminiModel.GEMINI_3_FLASH_PREVIEW
+        },
+        {
+          label: 'Gemini 3 Pro',
+          description:
+            'Modelo de raciocínio mais avançado do Gemini, capaz de resolver problemas complexos.',
+          value: GeminiModel.GEMINI_3_PRO_PREVIEW
+        },
+        {
+          label: 'Gemini 2.5 Flash',
+          description:
+            'Modelo mais rápido e eficiente, ideal para tarefas simples.',
+          value: GeminiModel.GEMINI_2_5_FLASH
+        },
+        {
+          label: 'Gemini 2.5 Pro',
+          description:
+            'Modelo de raciocínio mais avançado do Gemini, capaz de resolver problemas complexos.',
+          value: GeminiModel.GEMINI_2_5_PRO
+        }
+      ];
+
+      const selected = await vscode.window.showQuickPick(modelOptions, {
+        placeHolder: 'Selecione o modelo Gemini para gerar commits'
+      });
+
+      if (selected) {
+        const config = vscode.workspace.getConfiguration(extensionName);
+        await config.update(
+          'geminiModel',
+          selected.value,
+          vscode.ConfigurationTarget.Global
+        );
+        vscode.window.showInformationMessage(
+          `Modelo Gemini alterado para: ${selected.label}`
+        );
+      }
+    }
+  );
+
+  context.subscriptions.push(
+    generateCommand,
+    changeLanguageCommand,
+    changeModelCommand
+  );
 }
 
 async function getStagedDiff(repoPath: string): Promise<string | null> {
@@ -138,10 +200,12 @@ async function generateCommitMessageWithAI(
   const apiKey = await getApiKeyOrPrompt();
   if (!apiKey) return null;
 
-  // Lendo a configuração de idioma
+  // Lendo configurações
   const config = vscode.workspace.getConfiguration(extensionName);
   const language = config.get<string>('language') || 'pt-BR';
   const isEnglish = language === 'en';
+  const geminiModel =
+    (config.get<string>('geminiModel') as GeminiModel) || GeminiModel.GEMINI_3_FLASH_PREVIEW;
 
   const {
     GoogleGenAI,
@@ -195,7 +259,7 @@ async function generateCommitMessageWithAI(
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: geminiModel,
       config: {
         thinkingConfig: {
           thinkingLevel: ThinkingLevel.MEDIUM

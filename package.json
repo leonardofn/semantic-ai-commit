@@ -28,6 +28,10 @@
       {
         "command": "semantic-ai-commit.changeLanguage",
         "title": "Semantic AI Commit: Alterar Idioma"
+      },
+      {
+        "command": "semantic-ai-commit.changeGeminiModel",
+        "title": "Semantic AI Commit: Alterar Modelo Gemini"
       }
     ],
     "menus": {
@@ -61,6 +65,19 @@
           ],
           "title": "Idioma da Mensagem",
           "description": "O idioma no qual a mensagem de commit será gerada."
+        },
+        "semantic-ai-commit.geminiModel": {
+          "type": "string",
+          "default": "gemini-3-flash-preview",
+          "enum": [
+            "gemini-3.1-pro-preview",
+            "gemini-3-flash-preview",
+            "gemini-3-pro-preview",
+            "gemini-2.5-flash",
+            "gemini-2.5-pro"
+          ],
+          "title": "Modelo Gemini",
+          "description": "Modelo Gemini utilizado para gerar mensagens de commit."
         }
       }
     }
