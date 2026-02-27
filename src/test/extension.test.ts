@@ -28,32 +28,35 @@ suite('Extension Test Suite', function () {
   suite('Funções Exportadas', function () {
     test('getGitExtensionAPI deve retornar undefined se não houver extensão git', () => {
       const originalGetExtension = vscode.extensions.getExtension;
-
       try {
-        // Mock
         vscode.extensions.getExtension = () => undefined;
         const api = myExtension.getGitExtensionAPI();
         assert.strictEqual(api, undefined);
       } finally {
-        // 2. MUDANÇA: O 'finally' garante que a restauração ocorra MESMO se o assert falhar
         vscode.extensions.getExtension = originalGetExtension;
       }
     });
 
     test('getApiKeyOrPrompt retorna null se não houver apiKey', async () => {
       const originalGetConfiguration = vscode.workspace.getConfiguration;
+      const originalShowErrorMessage = vscode.window.showErrorMessage; // <- Salva a original
 
       try {
+        // 1. Força a apiKey a ser undefined
         vscode.workspace.getConfiguration = () =>
           ({
             get: () => undefined,
             update: async () => {}
           }) as any;
 
+        // 2. MOCK DA MENSAGEM: Simula o usuário fechando a notificação instantaneamente!
+        vscode.window.showErrorMessage = async () => undefined as any;
+
         const apiKey = await myExtension.getApiKeyOrPrompt();
         assert.strictEqual(apiKey, null);
       } finally {
         vscode.workspace.getConfiguration = originalGetConfiguration;
+        vscode.window.showErrorMessage = originalShowErrorMessage; // <- Restaura a original
       }
     });
 
@@ -77,14 +80,26 @@ suite('Extension Test Suite', function () {
     });
 
     test('generateCommitMessageWithAI retorna null se não houver apiKey', async () => {
-      const originalGetApiKeyOrPrompt = myExtension.getApiKeyOrPrompt;
+      const originalGetConfiguration = vscode.workspace.getConfiguration;
+      const originalShowErrorMessage = vscode.window.showErrorMessage;
 
       try {
-        (myExtension as any).getApiKeyOrPrompt = async () => null;
+        // Como o mock de exportação não funciona para funções internas,
+        // nós mockamos a configuração de novo para forçar o retorno null sem travar.
+        vscode.workspace.getConfiguration = () =>
+          ({
+            get: () => undefined,
+            update: async () => {}
+          }) as any;
+
+        // Mockamos a mensagem de erro de novo para não travar
+        vscode.window.showErrorMessage = async () => undefined as any;
+
         const result = await myExtension.generateCommitMessageWithAI('diff');
         assert.strictEqual(result, null);
       } finally {
-        (myExtension as any).getApiKeyOrPrompt = originalGetApiKeyOrPrompt;
+        vscode.workspace.getConfiguration = originalGetConfiguration;
+        vscode.window.showErrorMessage = originalShowErrorMessage;
       }
     });
   });
