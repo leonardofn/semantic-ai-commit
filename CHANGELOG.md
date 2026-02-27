@@ -1,6 +1,13 @@
+
 # Change Log
 
 All notable changes to the "Semantic AI Commit" extension will be documented in this file.
+
+## v0.2.0 - 27/02/2026
+
+- Added support for selecting the Gemini model in the settings.
+- Added tests for exported utility functions.
+- Updated dependencies.
 
 ## v0.1.2 - 06/01/2026
 
