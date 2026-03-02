@@ -1,3 +1,3 @@
-export interface CommitMessageResponse {
+export interface ICommitMessageResponse {
   commitMessage: string;
 }
