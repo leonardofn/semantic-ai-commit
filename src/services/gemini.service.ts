@@ -1,5 +1,10 @@
 import { GeminiModel } from '../enums/gemini-model';
-import { AIClientFactory, IAIClient } from '../interfaces/ai-client';
+import {
+  AIClientFactory,
+  IAIClient,
+  IAIGenerateContentConfig,
+  IAIGenerateContentParameters
+} from '../interfaces/ai-client';
 import { IApiErrorMessage } from '../interfaces/api-error';
 import { ICommitMessageResponse } from '../interfaces/commit-message';
 
@@ -71,26 +76,31 @@ export class GeminiService {
 
       const ai = new GoogleGenAI({ apiKey: this.apiKey });
 
+      const isGemini3 = this.model.toString().startsWith('gemini-3');
+      const config: IAIGenerateContentConfig = {
+        thinkingConfig: isGemini3
+          ? { thinkingLevel: ThinkingLevel.MEDIUM }
+          : undefined,
+        safetySettings: [
+          {
+            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
+          }
+        ],
+        responseMimeType: 'application/json',
+        responseJsonSchema: {
+          type: Type.OBJECT,
+          properties: { commitMessage: { type: Type.STRING } }
+        }
+      };
+
       // Wrap para satisfazer a interface IAIClient
       client = {
-        generateContent: (params: unknown) => {
-          const { contents } = params as { contents: string };
+        generateContent: (params) => {
+          const { contents } = params;
           return ai.models.generateContent({
             model: this.model,
-            config: {
-              thinkingConfig: { thinkingLevel: ThinkingLevel.MEDIUM },
-              safetySettings: [
-                {
-                  category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                  threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
-                }
-              ],
-              responseMimeType: 'application/json',
-              responseJsonSchema: {
-                type: Type.OBJECT,
-                properties: { commitMessage: { type: Type.STRING } }
-              }
-            },
+            config,
             contents
           });
         }
@@ -100,7 +110,7 @@ export class GeminiService {
     try {
       const response = await client.generateContent({
         contents: this.buildPrompt(diff)
-      });
+      } as IAIGenerateContentParameters);
 
       const text = response.text;
       if (!text) return null;
