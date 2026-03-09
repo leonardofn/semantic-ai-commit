@@ -1,6 +1,6 @@
 # Semantic AI Commit
 
-![Version](https://img.shields.io/badge/version-0.2.0-blue.svg) ![VS Code](https://img.shields.io/badge/VS%20Code-1.91.0%2B-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Contributors](https://img.shields.io/badge/contributors-1-orange.svg)
+![Version](https://img.shields.io/badge/version-0.2.1-blue.svg) ![VS Code](https://img.shields.io/badge/VS%20Code-1.91.0%2B-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Contributors](https://img.shields.io/badge/contributors-1-orange.svg)
 
 ![Logo](https://raw.githubusercontent.com/leonardofn/semantic-ai-commit/main/assets/images/logo.png)
 

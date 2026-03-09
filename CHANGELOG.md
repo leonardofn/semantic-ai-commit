@@ -3,6 +3,10 @@
 
 All notable changes to the "Semantic AI Commit" extension will be documented in this file.
 
+## v0.2.1 - 09/03/2026
+
+- Fix for Gemini settings when using models other than version 3.
+
 ## v0.2.0 - 27/02/2026
 
 - Added support for selecting the Gemini model in the settings.
