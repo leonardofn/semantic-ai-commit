@@ -8,7 +8,7 @@ import {
   IAIGenerateContentParameters
 } from '../interfaces/ai-client';
 import { IApiErrorMessage } from '../interfaces/api-error';
-import commitPromptTemplate from '../prompts/commit-prompt.md';
+import commitPromptTemplate from '../prompts/commit-prompt';
 
 export class GeminiService {
   constructor(
