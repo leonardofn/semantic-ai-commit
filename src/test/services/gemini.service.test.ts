@@ -1,7 +1,8 @@
 import assert from 'assert';
 import * as sinon from 'sinon';
+import { Messages } from '../../constants/messages';
 import { GeminiModel } from '../../enums/gemini-model';
-import { IAIClient } from '../../interfaces/ai-client';
+import { IAIClient, ICommitMessageResponse } from '../../interfaces/ai-client';
 import { GeminiService } from '../../services/gemini.service';
 
 /** Cria um GeminiService com um client mockado */
@@ -15,53 +16,59 @@ function makeService(generateContent: sinon.SinonStub): GeminiService {
   );
 }
 
+/** Cria um ICommitMessageResponse com valores padrão */
+function makeCommitData(
+  overrides: Partial<ICommitMessageResponse> = {}
+): ICommitMessageResponse {
+  return { type: 'feat', scope: '', subject: 'add feature', body: '', ...overrides };
+}
+
 suite('GeminiService', function () {
   teardown(function () {
     sinon.restore();
   });
 
-  test('retorna null se a resposta não tiver texto', async function () {
-    const stub = sinon.stub().resolves({ text: '' });
+  test('lança erro se a resposta não tiver texto', async function () {
+    const stub = sinon.stub().resolves({ text: undefined });
     const service = makeService(stub);
 
-    const result = await service.generateCommitMessage('diff content');
-    assert.strictEqual(result, null);
+    await assert.rejects(
+      () => service.generateCommitMessage('diff content'),
+      (err: Error) => {
+        assert.strictEqual(err.message, Messages.commit.noValidResponse);
+        return true;
+      }
+    );
   });
 
-  test('retorna null se o JSON não contiver commitMessage', async function () {
-    const stub = sinon.stub().resolves({ text: '{}' });
-    const service = makeService(stub);
-
-    const result = await service.generateCommitMessage('diff content');
-    assert.strictEqual(result, null);
-  });
-
-  test('retorna null se commitMessage for string vazia', async function () {
-    const stub = sinon.stub().resolves({ text: '{"commitMessage":""}' });
-    const service = makeService(stub);
-
-    const result = await service.generateCommitMessage('diff content');
-    assert.strictEqual(result, null);
-  });
-
-  test('retorna a mensagem de commit corretamente', async function () {
+  test('retorna a mensagem de commit sem escopo', async function () {
     const stub = sinon
       .stub()
-      .resolves({ text: '{"commitMessage":"feat: add new feature"}' });
+      .resolves({ text: makeCommitData({ type: 'feat', subject: 'add new feature', scope: '' }) });
     const service = makeService(stub);
 
     const result = await service.generateCommitMessage('diff content');
     assert.strictEqual(result, 'feat: add new feature');
   });
 
-  test('faz trim na mensagem de commit retornada', async function () {
+  test('retorna a mensagem de commit com escopo', async function () {
     const stub = sinon
       .stub()
-      .resolves({ text: '{"commitMessage":"  feat: trimmed  "}' });
+      .resolves({ text: makeCommitData({ type: 'feat', scope: 'auth', subject: 'add login' }) });
     const service = makeService(stub);
 
     const result = await service.generateCommitMessage('diff content');
-    assert.strictEqual(result, 'feat: trimmed');
+    assert.strictEqual(result, 'feat(auth): add login');
+  });
+
+  test('retorna a mensagem de commit com body', async function () {
+    const stub = sinon
+      .stub()
+      .resolves({ text: makeCommitData({ type: 'fix', subject: 'correct bug', body: 'explains why' }) });
+    const service = makeService(stub);
+
+    const result = await service.generateCommitMessage('diff content');
+    assert.strictEqual(result, 'fix: correct bug\n\nexplains why');
   });
 
   test('lança erro com mensagem amigável quando o client rejeita', async function () {
@@ -93,10 +100,10 @@ suite('GeminiService', function () {
     );
   });
 
-  test('passa o prompt construído para o client', async function () {
+  test('passa o diff para o client', async function () {
     const stub = sinon
       .stub()
-      .resolves({ text: '{"commitMessage":"chore: update deps"}' });
+      .resolves({ text: makeCommitData({ type: 'chore', subject: 'update deps' }) });
     const service = makeService(stub);
 
     await service.generateCommitMessage('my diff');
