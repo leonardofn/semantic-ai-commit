@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { EXTENSION_NAME } from '../constants/extension';
+import { Messages } from '../constants/messages';
 import { GeminiModel } from '../enums/gemini-model';
 import { ConfigService } from '../services/config.service';
 
@@ -49,14 +50,14 @@ export function registerChangeModelCommand(): vscode.Disposable {
       }));
 
       const selected = await vscode.window.showQuickPick(items, {
-        placeHolder: 'Selecione o modelo Gemini para gerar commits'
+        placeHolder: Messages.model.selectPlaceholder
       });
 
       if (!selected) return;
 
       await configService.updateGeminiModel(selected.value);
       vscode.window.showInformationMessage(
-        `Modelo Gemini alterado para: ${selected.label}`
+        Messages.model.changed(selected.label)
       );
     }
   );

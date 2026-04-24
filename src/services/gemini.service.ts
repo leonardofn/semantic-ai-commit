@@ -1,3 +1,4 @@
+import { Messages } from '../constants/messages';
 import { GeminiModel } from '../enums/gemini-model';
 import {
   AIClientFactory,
@@ -70,9 +71,7 @@ export class GeminiService {
       const commitData = response.text;
 
       if (!commitData) {
-        throw new Error(
-          'O modelo não retornou uma resposta válida. Por favor, tente novamente.'
-        );
+        throw new Error(Messages.commit.noValidResponse);
       }
 
       const { type, scope, subject, body } = commitData;
@@ -84,8 +83,7 @@ export class GeminiService {
 
       return commitMessage;
     } catch (error) {
-      let errorMessage =
-        'Erro ao gerar a mensagem de commit com o Gemini. Por favor, tente novamente.';
+      let errorMessage = Messages.commit.geminiError;
 
       // Tenta extrair mensagem de erro no formato da API do Gemini
       const rawMessage = (error as Error)?.message ?? '';
@@ -105,7 +103,7 @@ export class GeminiService {
   }
 
   private buildPrompt(): string {
-    const language = this.language === 'en' ? 'Inglês' : 'Português do Brasil';
+    const language = this.language === 'en' ? Messages.language.english : Messages.language.portuguese;
 
     return commitPromptTemplate.replace('{{LANGUAGE}}', language);
   }
@@ -116,23 +114,19 @@ export class GeminiService {
       properties: {
         type: {
           type: 'STRING',
-          description:
-            'O tipo do commit: feat, fix, chore, docs, refactor, style, test ou perf.'
+          description: Messages.schema.typeDescription
         },
         scope: {
           type: 'STRING',
-          description:
-            'O escopo da mudança (opcional, em letras minúsculas). Deixe vazio se não houver um claro.'
+          description: Messages.schema.scopeDescription
         },
         subject: {
           type: 'STRING',
-          description:
-            'A descrição curta e imperativa do commit (máx. 50 caracteres).'
+          description: Messages.schema.subjectDescription
         },
         body: {
           type: 'STRING',
-          description:
-            'Uma descrição mais detalhada explicando o PORQUÊ da mudança (opcional).'
+          description: Messages.schema.bodyDescription
         }
       },
       required: ['type', 'subject']

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { EXTENSION_NAME } from '../constants/extension';
+import { Messages } from '../constants/messages';
 import { ConfigService } from '../services/config.service';
 
 const LANGUAGE_OPTIONS = [
@@ -29,14 +30,14 @@ export function registerChangeLanguageCommand(): vscode.Disposable {
       }));
 
       const selected = await vscode.window.showQuickPick(items, {
-        placeHolder: 'Selecione o idioma das mensagens de commit'
+        placeHolder: Messages.language.selectPlaceholder
       });
 
       if (!selected) return;
 
       await configService.updateLanguage(selected.value);
       vscode.window.showInformationMessage(
-        `Idioma do Semantic AI Commit alterado para: ${selected.label}`
+        Messages.language.changed(selected.label)
       );
     }
   );

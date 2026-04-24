@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { EXTENSION_NAME } from '../constants/extension';
+import { Messages } from '../constants/messages';
 import { ConfigService } from '../services/config.service';
 import { GeminiService } from '../services/gemini.service';
 import { GitService } from '../services/git.service';
@@ -12,7 +13,7 @@ export function registerGenerateCommitCommand(): vscode.Disposable {
     async (sourceControl?: any) => {
       const gitApi = GitService.getAPI();
       if (!gitApi) {
-        vscode.window.showErrorMessage('A API do Git não foi encontrada.');
+        vscode.window.showErrorMessage(Messages.git.apiNotFound);
         return;
       }
 
@@ -32,15 +33,15 @@ export function registerGenerateCommitCommand(): vscode.Disposable {
       }
 
       if (!repo) {
-        vscode.window.showErrorMessage('Nenhum repositório Git encontrado.');
+        vscode.window.showErrorMessage(Messages.git.noRepoFound);
         return;
       }
 
       const apiKey = configService.getApiKey();
       if (!apiKey) {
-        const action = 'Configurar Chave de API';
+        const action = Messages.apiKey.configureAction;
         const result = await vscode.window.showErrorMessage(
-          'A chave de API do Google Gemini não está configurada. Por favor, configure-a nas configurações da extensão.',
+          Messages.apiKey.notConfigured,
           action
         );
         if (result === action) {
@@ -51,16 +52,14 @@ export function registerGenerateCommitCommand(): vscode.Disposable {
 
       const diff = await GitService.getStagedDiff(repo.rootUri.fsPath);
       if (!diff) {
-        vscode.window.showInformationMessage(
-          'Nenhuma alteração preparada (staged) para o commit.'
-        );
+        vscode.window.showInformationMessage(Messages.commit.noStagedChanges);
         return;
       }
 
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.SourceControl,
-          title: 'Gerando mensagem de commit com Gemini...',
+          title: Messages.commit.generating,
           cancellable: false
         },
         async () => {
@@ -76,15 +75,13 @@ export function registerGenerateCommitCommand(): vscode.Disposable {
             if (commitMessage) {
               repo.inputBox.value = commitMessage;
             } else {
-              vscode.window.showErrorMessage(
-                'Não foi possível gerar a mensagem de commit. Por favor, tente novamente.'
-              );
+              vscode.window.showErrorMessage(Messages.commit.generateFailed);
             }
           } catch (error) {
             const message =
               error instanceof Error
                 ? error.message
-                : 'Erro desconhecido ao gerar commit.';
+                : Messages.commit.unknownError;
             vscode.window.showErrorMessage(message);
           }
         }

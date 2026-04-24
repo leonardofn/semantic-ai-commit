@@ -1,5 +1,6 @@
 import simpleGit, { SimpleGit } from 'simple-git';
 import * as vscode from 'vscode';
+import { Messages } from '../constants/messages';
 import { API, GitExtension, Repository } from '../types/git';
 
 export class GitService {
@@ -15,8 +16,8 @@ export class GitService {
       const diff = await git.diff(['--staged', '--', ':!package-lock.json', ':!*.svg', ':!*.min.js']);
       return diff || null;
     } catch (error) {
-      vscode.window.showErrorMessage('Erro ao obter diff.');
-      console.error('Erro ao obter diff:', error);
+      vscode.window.showErrorMessage(Messages.git.diffError);
+      console.error(Messages.git.diffErrorLog, error);
       return null;
     }
   }
@@ -39,13 +40,13 @@ export class GitService {
 
     const items = repositories.map((repo) => ({
       label:
-        repo.rootUri.fsPath.split(/[\\/]/).pop() ?? 'Repositório desconhecido',
+        repo.rootUri.fsPath.split(/[\\/]/).pop() ?? Messages.git.unknownRepo,
       description: repo.rootUri.fsPath,
       repo
     }));
 
     const selected = await vscode.window.showQuickPick(items, {
-      placeHolder: 'Selecione o repositório para gerar o commit'
+      placeHolder: Messages.git.selectRepo
     });
 
     return selected?.repo ?? null;
