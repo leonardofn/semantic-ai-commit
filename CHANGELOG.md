@@ -3,6 +3,13 @@
 
 All notable changes to the "Semantic AI Commit" extension will be documented in this file.
 
+## v0.2.2 - 24/04/2026
+
+- Added structured schema for commit message generation via Gemini API.
+- Improved prompt for commit messages, now loaded from an external Markdown file.
+- Ignored irrelevant files (e.g. lock files) from the staged diff analysis.
+- Centralized all user-facing interface messages into a constants module.
+
 ## v0.2.1 - 09/03/2026
 
 - Fix for Gemini settings when using models other than version 3.
