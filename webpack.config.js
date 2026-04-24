@@ -37,6 +37,10 @@ const extensionConfig = {
             loader: 'ts-loader'
           }
         ]
+      },
+      {
+        test: /\.md$/,
+        type: 'asset/source'
       }
     ]
   },

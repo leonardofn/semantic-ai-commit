@@ -1,12 +1,13 @@
 import { GeminiModel } from '../enums/gemini-model';
 import {
   AIClientFactory,
+  AIResponseSchema,
   IAIClient,
   IAIGenerateContentConfig,
   IAIGenerateContentParameters
 } from '../interfaces/ai-client';
 import { IApiErrorMessage } from '../interfaces/api-error';
-import { ICommitMessageResponse } from '../interfaces/commit-message';
+import commitPromptTemplate from '../prompts/commit-prompt.md';
 
 export class GeminiService {
   constructor(
@@ -16,67 +17,17 @@ export class GeminiService {
     private readonly clientFactory?: AIClientFactory
   ) {}
 
-  private buildPrompt(diff: string): string {
-    const isEnglish = this.language === 'en';
-
-    return `
-      Você é uma IA especialista em gerar mensagens de commit seguindo o padrão Conventional Commits.
-
-      Analise o diff abaixo e gere UMA ÚNICA LINHA de mensagem de commit, curta, clara e objetiva, SEM EXPLICAÇÕES.
-
-      CONTEXTO:
-      - O diff representa alterações em um repositório de código.
-      - A mensagem deve descrever a intenção principal da mudança, não detalhes técnicos.
-
-      IDIOMA DA RESPOSTA:
-      - Responda apenas em ${isEnglish ? 'English' : 'Português do Brasil'}.
-
-      REGRAS OBRIGATÓRIAS:
-      - Estrutura: <tipo>(<escopo opcional>): <descrição>
-      - Tipos permitidos:
-        feat: nova funcionalidade
-        fix: correção de bug
-        docs: alteração na documentação
-        style: alteração de formatação, sem impacto no código
-        refactor: refatoração sem mudança de comportamento
-        test: adição/modificação de testes
-        chore: tarefas de manutenção (build, dependências, etc.)
-        perf: melhoria de performance
-      - O escopo é opcional, curto e entre parênteses.
-      - Máximo de 100 caracteres.
-      - Use sempre o modo imperativo.
-      - NÃO inclua nomes de arquivos, funções, classes, variáveis, datas, números de ticket ou nomes próprios.
-      - NÃO copie nada do diff.
-      - NÃO explique, apenas forneça a mensagem.
-      - NÃO use frases genéricas como "atualiza código" ou "faz alterações".
-
-      ORIENTAÇÕES:
-      - Se o diff for ambíguo, gere a descrição mais provável da intenção.
-      - Seja direto e objetivo.
-      - NÃO gere markdown, apenas texto puro no campo "commitMessage".
-
-      DIFF PARA ANÁLISE:
-      ${diff}
-    `;
-  }
-
   async generateCommitMessage(diff: string): Promise<string | null> {
     let client: IAIClient;
 
     if (this.clientFactory) {
       client = this.clientFactory(this.apiKey);
     } else {
-      const {
-        GoogleGenAI,
-        Type,
-        HarmBlockThreshold,
-        HarmCategory,
-        ThinkingLevel
-      } = await import('@google/genai');
-
-      const ai = new GoogleGenAI({ apiKey: this.apiKey });
+      const { GoogleGenAI, HarmBlockThreshold, HarmCategory, ThinkingLevel } =
+        await import('@google/genai');
 
       const isGemini3 = this.model.toString().startsWith('gemini-3');
+
       const config: IAIGenerateContentConfig = {
         thinkingConfig: isGemini3
           ? { thinkingLevel: ThinkingLevel.MEDIUM }
@@ -87,39 +38,51 @@ export class GeminiService {
             threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
           }
         ],
+        systemInstruction: this.buildPrompt(),
+        temperature: 0.1, // Baixa criatividade, alta precisão
         responseMimeType: 'application/json',
-        responseJsonSchema: {
-          type: Type.OBJECT,
-          properties: { commitMessage: { type: Type.STRING } }
-        }
+        responseSchema: this.createCommitSchema()
       };
+
+      const ai = new GoogleGenAI({ apiKey: this.apiKey });
 
       // Wrap para satisfazer a interface IAIClient
       client = {
-        generateContent: (params) => {
+        generateContent: async (params) => {
           const { contents } = params;
-          return ai.models.generateContent({
+          const response = await ai.models.generateContent({
             model: this.model,
             config,
             contents
           });
+          return {
+            text: response.text ? JSON.parse(response.text) : null
+          };
         }
       };
     }
 
     try {
       const response = await client.generateContent({
-        contents: this.buildPrompt(diff)
+        contents: diff
       } as IAIGenerateContentParameters);
 
-      const text = response.text;
-      if (!text) return null;
+      const commitData = response.text;
 
-      const commitMessage = (
-        JSON.parse(text) as ICommitMessageResponse
-      ).commitMessage?.trim();
+      if (!commitData) {
+        throw new Error(
+          'O modelo não retornou uma resposta válida. Por favor, tente novamente.'
+        );
+      }
 
-      return commitMessage || null;
+      const { type, scope, subject, body } = commitData;
+      let commitMessage = type;
+
+      if (scope) commitMessage += `(${scope})`;
+      commitMessage += `: ${subject}`;
+      if (body) commitMessage += `\n\n${body}`;
+
+      return commitMessage;
     } catch (error) {
       let errorMessage =
         'Erro ao gerar a mensagem de commit com o Gemini. Por favor, tente novamente.';
@@ -139,5 +102,40 @@ export class GeminiService {
 
       throw new Error(errorMessage);
     }
+  }
+
+  private buildPrompt(): string {
+    const language = this.language === 'en' ? 'Inglês' : 'Português do Brasil';
+
+    return commitPromptTemplate.replace('{{LANGUAGE}}', language);
+  }
+
+  private createCommitSchema(): AIResponseSchema {
+    return {
+      type: 'OBJECT',
+      properties: {
+        type: {
+          type: 'STRING',
+          description:
+            'O tipo do commit: feat, fix, chore, docs, refactor, style, test ou perf.'
+        },
+        scope: {
+          type: 'STRING',
+          description:
+            'O escopo da mudança (opcional, em letras minúsculas). Deixe vazio se não houver um claro.'
+        },
+        subject: {
+          type: 'STRING',
+          description:
+            'A descrição curta e imperativa do commit (máx. 50 caracteres).'
+        },
+        body: {
+          type: 'STRING',
+          description:
+            'Uma descrição mais detalhada explicando o PORQUÊ da mudança (opcional).'
+        }
+      },
+      required: ['type', 'subject']
+    };
   }
 }
