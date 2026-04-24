@@ -12,7 +12,7 @@ export class GitService {
   static async getStagedDiff(repoPath: string): Promise<string | null> {
     try {
       const git: SimpleGit = simpleGit(repoPath);
-      const diff = await git.diff(['--staged']);
+      const diff = await git.diff(['--staged', '--', ':!package-lock.json', ':!*.svg', ':!*.min.js']);
       return diff || null;
     } catch (error) {
       vscode.window.showErrorMessage('Erro ao obter diff.');
