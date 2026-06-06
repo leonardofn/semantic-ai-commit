@@ -4,8 +4,7 @@ import {
   AIClientFactory,
   AIResponseSchema,
   IAIClient,
-  IAIGenerateContentConfig,
-  IAIGenerateContentParameters
+  IAIGenerateContentConfig
 } from '../interfaces/ai-client';
 import { IApiErrorMessage } from '../interfaces/api-error';
 import commitPromptTemplate from '../prompts/commit-prompt';
@@ -50,10 +49,10 @@ export class GeminiService {
       // Wrap para satisfazer a interface IAIClient
       client = {
         generateContent: async (params) => {
-          const { contents } = params;
+          const { model, contents } = params;
           const response = await ai.models.generateContent({
-            model: this.model,
             config,
+            model,
             contents
           });
           return {
@@ -65,8 +64,9 @@ export class GeminiService {
 
     try {
       const response = await client.generateContent({
+        model: this.model,
         contents: diff
-      } as IAIGenerateContentParameters);
+      });
 
       const commitData = response.text;
 
@@ -103,7 +103,10 @@ export class GeminiService {
   }
 
   private buildPrompt(): string {
-    const language = this.language === 'en' ? Messages.language.english : Messages.language.portuguese;
+    const language =
+      this.language === 'en'
+        ? Messages.language.english
+        : Messages.language.portuguese;
 
     return commitPromptTemplate.replace('{{LANGUAGE}}', language);
   }
