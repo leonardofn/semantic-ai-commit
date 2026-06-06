@@ -39,26 +39,21 @@ const MODEL_OPTIONS: {
 export function registerChangeModelCommand(): vscode.Disposable {
   const configService = new ConfigService();
 
-  return vscode.commands.registerCommand(
-    `${EXTENSION_NAME}.changeGeminiModel`,
-    async () => {
-      const currentModel = configService.getGeminiModel();
+  return vscode.commands.registerCommand(`${EXTENSION_NAME}.changeGeminiModel`, async () => {
+    const currentModel = configService.getGeminiModel();
 
-      const items = MODEL_OPTIONS.map((opt) => ({
-        ...opt,
-        picked: opt.value === currentModel
-      }));
+    const items = MODEL_OPTIONS.map(opt => ({
+      ...opt,
+      picked: opt.value === currentModel
+    }));
 
-      const selected = await vscode.window.showQuickPick(items, {
-        placeHolder: Messages.model.selectPlaceholder
-      });
+    const selected = await vscode.window.showQuickPick(items, {
+      placeHolder: Messages.model.selectPlaceholder
+    });
 
-      if (!selected) return;
+    if (!selected) return;
 
-      await configService.updateGeminiModel(selected.value);
-      vscode.window.showInformationMessage(
-        Messages.model.changed(selected.label)
-      );
-    }
-  );
+    await configService.updateGeminiModel(selected.value);
+    vscode.window.showInformationMessage(Messages.model.changed(selected.label));
+  });
 }

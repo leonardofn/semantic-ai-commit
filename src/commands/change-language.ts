@@ -19,26 +19,21 @@ const LANGUAGE_OPTIONS = [
 export function registerChangeLanguageCommand(): vscode.Disposable {
   const configService = new ConfigService();
 
-  return vscode.commands.registerCommand(
-    `${EXTENSION_NAME}.changeLanguage`,
-    async () => {
-      const currentLanguage = configService.getLanguage();
+  return vscode.commands.registerCommand(`${EXTENSION_NAME}.changeLanguage`, async () => {
+    const currentLanguage = configService.getLanguage();
 
-      const items = LANGUAGE_OPTIONS.map((opt) => ({
-        ...opt,
-        picked: opt.value === currentLanguage
-      }));
+    const items = LANGUAGE_OPTIONS.map(opt => ({
+      ...opt,
+      picked: opt.value === currentLanguage
+    }));
 
-      const selected = await vscode.window.showQuickPick(items, {
-        placeHolder: Messages.language.selectPlaceholder
-      });
+    const selected = await vscode.window.showQuickPick(items, {
+      placeHolder: Messages.language.selectPlaceholder
+    });
 
-      if (!selected) return;
+    if (!selected) return;
 
-      await configService.updateLanguage(selected.value);
-      vscode.window.showInformationMessage(
-        Messages.language.changed(selected.label)
-      );
-    }
-  );
+    await configService.updateLanguage(selected.value);
+    vscode.window.showInformationMessage(Messages.language.changed(selected.label));
+  });
 }

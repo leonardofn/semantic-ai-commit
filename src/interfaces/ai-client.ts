@@ -22,10 +22,7 @@ export interface ICommitMessageResponse {
 export type AIResponseSchema = SchemaUnion;
 
 export interface IAIClient {
-  generateContent(
-    params: IAIGenerateContentParameters
-  ): Promise<IAIGenerateResponse>;
+  generateContent(params: IAIGenerateContentParameters): Promise<IAIGenerateResponse>;
 }
 
 export type AIClientFactory = (apiKey: string) => IAIClient;
-
