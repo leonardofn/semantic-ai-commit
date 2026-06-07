@@ -33,6 +33,16 @@ const MODEL_OPTIONS: {
     label: 'Gemini 2.5 Pro',
     description: 'Raciocínio avançado para resolução de problemas.',
     value: GeminiModel.GEMINI_2_5_PRO
+  },
+  {
+    label: 'Gemma 4 26B A4B IT',
+    description: 'Modelo Gemma 4 otimizado para eficiência e desempenho.',
+    value: GeminiModel.GEMMA_4_26B_A4B_IT
+  },
+  {
+    label: 'Gemma 4 31B',
+    description: 'Modelo Gemma 4 de alta performance para raciocínio complexo.',
+    value: GeminiModel.GEMMA_4_31B_IT
   }
 ];
 
