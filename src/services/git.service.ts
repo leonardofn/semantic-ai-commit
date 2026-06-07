@@ -12,13 +12,13 @@ export class GitService {
   static async getStagedDiff(repoPath: string): Promise<string | null> {
     try {
       const git: SimpleGit = simpleGit(repoPath);
-      const diff = await git.diff([
-        '--staged',
-        '--',
-        ':!package-lock.json',
-        ':!*.svg',
-        ':!*.min.js'
-      ]);
+      let diff = await git.diff(['--staged', '--', ':!package-lock.json', ':!*.svg', ':!*.min.js']);
+
+      if (!diff) return null;
+
+      // Remove arquivos binários do diff para que a IA não os analise
+      diff = diff.replace(/^Binary files .*(\r?\n|$)/gm, '').trim();
+
       return diff || null;
     } catch (error) {
       vscode.window.showErrorMessage(Messages.git.diffError);
