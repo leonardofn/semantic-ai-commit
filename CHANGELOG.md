@@ -1,22 +1,31 @@
-
 # Change Log
 
 All notable changes to the "Semantic AI Commit" extension will be documented in this file.
 
+## v0.3.0 - 07/06/2026
+
+- Added support for Gemma 4 models.
+- Excluded binary files from staged diff analysis.
+- Renamed specific AI references to generic AI for better abstraction.
+- Converted webpack configuration to ESM.
+- Added project documentation and development guides.
+- Integrated Prettier with ESLint and VS Code for consistent code formatting.
+- Improved VS Code tasks and problem matchers.
+
 ## v0.2.2 - 24/04/2026
 
-- Added structured schema for commit message generation via Gemini API.
+- Added structured schema for commit message generation via AI API.
 - Improved prompt for commit messages, now loaded from an external Markdown file.
 - Ignored irrelevant files (e.g. lock files) from the staged diff analysis.
 - Centralized all user-facing interface messages into a constants module.
 
 ## v0.2.1 - 09/03/2026
 
-- Fix for Gemini settings when using models other than version 3.
+- Fix for AI settings when using models other than version 3.
 
 ## v0.2.0 - 27/02/2026
 
-- Added support for selecting the Gemini model in the settings.
+- Added support for selecting the AI model in the settings.
 - Added tests for exported utility functions.
 - Updated dependencies.
 
@@ -43,4 +52,4 @@ All notable changes to the "Semantic AI Commit" extension will be documented in 
 
 ## v0.0.1 - 22/09/2025
 
-- Initial release: automatic generation of commit messages with Gemini AI.
+- Initial release: automatic generation of commit messages with AI.

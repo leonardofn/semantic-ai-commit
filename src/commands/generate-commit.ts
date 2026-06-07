@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { EXTENSION_NAME } from '../constants/extension';
 import { Messages } from '../constants/messages';
+import { AIService } from '../services/ai.service';
 import { ConfigService } from '../services/config.service';
-import { GeminiService } from '../services/gemini.service';
 import { GitService } from '../services/git.service';
 
 export function registerGenerateCommitCommand(): vscode.Disposable {
@@ -40,10 +40,7 @@ export function registerGenerateCommitCommand(): vscode.Disposable {
       const apiKey = configService.getApiKey();
       if (!apiKey) {
         const action = Messages.apiKey.configureAction;
-        const result = await vscode.window.showErrorMessage(
-          Messages.apiKey.notConfigured,
-          action
-        );
+        const result = await vscode.window.showErrorMessage(Messages.apiKey.notConfigured, action);
         if (result === action) {
           await configService.openSettings();
         }
@@ -64,24 +61,20 @@ export function registerGenerateCommitCommand(): vscode.Disposable {
         },
         async () => {
           try {
-            const geminiService = new GeminiService(
+            const aiService = new AIService(
               apiKey,
-              configService.getGeminiModel(),
+              configService.getAIModel(),
               configService.getLanguage()
             );
 
-            const commitMessage =
-              await geminiService.generateCommitMessage(diff);
+            const commitMessage = await aiService.generateCommitMessage(diff);
             if (commitMessage) {
               repo.inputBox.value = commitMessage;
             } else {
               vscode.window.showErrorMessage(Messages.commit.generateFailed);
             }
           } catch (error) {
-            const message =
-              error instanceof Error
-                ? error.message
-                : Messages.commit.unknownError;
+            const message = error instanceof Error ? error.message : Messages.commit.unknownError;
             vscode.window.showErrorMessage(message);
           }
         }

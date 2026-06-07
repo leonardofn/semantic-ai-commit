@@ -3,14 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import {
-  CancellationToken,
-  Command,
-  Disposable,
-  Event,
-  ProviderResult,
-  Uri
-} from 'vscode';
+import { CancellationToken, Command, Disposable, Event, ProviderResult, Uri } from 'vscode';
 export { ProviderResult } from 'vscode';
 
 export interface Git {
@@ -24,13 +17,13 @@ export interface InputBox {
 export const enum ForcePushMode {
   Force,
   ForceWithLease,
-  ForceWithLeaseIfIncludes,
+  ForceWithLeaseIfIncludes
 }
 
 export const enum RefType {
   Head,
   RemoteHead,
-  Tag,
+  Tag
 }
 
 export interface Ref {
@@ -104,7 +97,7 @@ export const enum Status {
   DELETED_BY_THEM,
   BOTH_ADDED,
   BOTH_DELETED,
-  BOTH_MODIFIED,
+  BOTH_MODIFIED
 }
 
 export interface Change {
@@ -219,9 +212,7 @@ export interface Repository {
     treeish: string,
     path: string
   ): Promise<{ mode: string; object: string; size: number }>;
-  detectObjectType(
-    object: string
-  ): Promise<{ mimetype: string; encoding?: string }>;
+  detectObjectType(object: string): Promise<{ mimetype: string; encoding?: string }>;
   buffer(ref: string, path: string): Promise<Buffer>;
   show(ref: string, path: string): Promise<string>;
   getCommit(ref: string): Promise<Commit>;
@@ -249,19 +240,13 @@ export interface Repository {
   createBranch(name: string, checkout: boolean, ref?: string): Promise<void>;
   deleteBranch(name: string, force?: boolean): Promise<void>;
   getBranch(name: string): Promise<Branch>;
-  getBranches(
-    query: BranchQuery,
-    cancellationToken?: CancellationToken
-  ): Promise<Ref[]>;
+  getBranches(query: BranchQuery, cancellationToken?: CancellationToken): Promise<Ref[]>;
   getBranchBase(name: string): Promise<Branch | undefined>;
   setBranchUpstream(name: string, upstream: string): Promise<void>;
 
   checkIgnore(paths: string[]): Promise<Set<string>>;
 
-  getRefs(
-    query: RefQuery,
-    cancellationToken?: CancellationToken
-  ): Promise<Ref[]>;
+  getRefs(query: RefQuery, cancellationToken?: CancellationToken): Promise<Ref[]>;
 
   getMergeBase(ref1: string, ref2: string): Promise<string | undefined>;
 
@@ -372,10 +357,7 @@ export interface SourceControlHistoryItemDetailsProvider {
     query: AvatarQuery
   ): ProviderResult<Map<string, string | undefined>>;
   provideHoverCommands(repository: Repository): ProviderResult<Command[]>;
-  provideMessageLinks(
-    repository: Repository,
-    message: string
-  ): ProviderResult<string>;
+  provideMessageLinks(repository: Repository, message: string): ProviderResult<string>;
 }
 
 export type APIState = 'uninitialized' | 'initialized';
@@ -403,14 +385,9 @@ export interface API {
   registerRemoteSourcePublisher(publisher: RemoteSourcePublisher): Disposable;
   registerRemoteSourceProvider(provider: RemoteSourceProvider): Disposable;
   registerCredentialsProvider(provider: CredentialsProvider): Disposable;
-  registerPostCommitCommandsProvider(
-    provider: PostCommitCommandsProvider
-  ): Disposable;
+  registerPostCommitCommandsProvider(provider: PostCommitCommandsProvider): Disposable;
   registerPushErrorHandler(handler: PushErrorHandler): Disposable;
-  registerBranchProtectionProvider(
-    root: Uri,
-    provider: BranchProtectionProvider
-  ): Disposable;
+  registerBranchProtectionProvider(root: Uri, provider: BranchProtectionProvider): Disposable;
   registerSourceControlHistoryItemDetailsProvider(
     provider: SourceControlHistoryItemDetailsProvider
   ): Disposable;
@@ -481,5 +458,5 @@ export const enum GitErrorCodes {
   CherryPickConflict = 'CherryPickConflict',
   WorktreeContainsChanges = 'WorktreeContainsChanges',
   WorktreeAlreadyExists = 'WorktreeAlreadyExists',
-  WorktreeBranchAlreadyUsed = 'WorktreeBranchAlreadyUsed',
+  WorktreeBranchAlreadyUsed = 'WorktreeBranchAlreadyUsed'
 }

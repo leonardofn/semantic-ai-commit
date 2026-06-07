@@ -5,19 +5,24 @@ import { API, GitExtension, Repository } from '../types/git';
 
 export class GitService {
   static getAPI(): API | undefined {
-    const extension =
-      vscode.extensions.getExtension<GitExtension>('vscode.git');
+    const extension = vscode.extensions.getExtension<GitExtension>('vscode.git');
     return extension?.exports?.getAPI(1);
   }
 
   static async getStagedDiff(repoPath: string): Promise<string | null> {
     try {
       const git: SimpleGit = simpleGit(repoPath);
-      const diff = await git.diff(['--staged', '--', ':!package-lock.json', ':!*.svg', ':!*.min.js']);
+      let diff = await git.diff(['--staged', '--', ':!package-lock.json', ':!*.svg', ':!*.min.js']);
+
+      if (!diff) return null;
+
+      // Remove arquivos binários do diff para que a IA não os analise
+      diff = diff.replace(/^Binary files .*(\r?\n|$)/gm, '').trim();
+
       return diff || null;
     } catch (error) {
       vscode.window.showErrorMessage(Messages.git.diffError);
-      console.error(Messages.git.diffErrorLog, error);
+      process.stderr.write(`${Messages.git.diffErrorLog}: ${error}\n`);
       return null;
     }
   }
@@ -29,18 +34,15 @@ export class GitService {
     const uri = sourceControl._rootUri || sourceControl.rootUri;
     if (!uri) return undefined;
 
-    return repositories.find((r) => r.rootUri.toString() === uri.toString());
+    return repositories.find(r => r.rootUri.toString() === uri.toString());
   }
 
-  static async selectRepository(
-    repositories: Repository[]
-  ): Promise<Repository | null> {
+  static async selectRepository(repositories: Repository[]): Promise<Repository | null> {
     if (repositories.length === 0) return null;
     if (repositories.length === 1) return repositories[0];
 
-    const items = repositories.map((repo) => ({
-      label:
-        repo.rootUri.fsPath.split(/[\\/]/).pop() ?? Messages.git.unknownRepo,
+    const items = repositories.map(repo => ({
+      label: repo.rootUri.fsPath.split(/[\\/]/).pop() ?? Messages.git.unknownRepo,
       description: repo.rootUri.fsPath,
       repo
     }));

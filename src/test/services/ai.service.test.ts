@@ -1,29 +1,28 @@
 import assert from 'assert';
 import * as sinon from 'sinon';
 import { Messages } from '../../constants/messages';
-import { GeminiModel } from '../../enums/gemini-model';
+import { AIModel } from '../../enums/ai-model';
 import { IAIClient, ICommitMessageResponse } from '../../interfaces/ai-client';
-import { GeminiService } from '../../services/gemini.service';
+import { AIService } from '../../services/ai.service';
 
-/** Cria um GeminiService com um client mockado */
-function makeService(generateContent: sinon.SinonStub): GeminiService {
+/** Cria um AIService com um client mockado */
+function makeService(generateContent: sinon.SinonStub): AIService {
   const mockClient: IAIClient = { generateContent };
-  return new GeminiService(
-    'fake-api-key',
-    GeminiModel.GEMINI_3_FLASH_PREVIEW,
-    'pt-BR',
-    () => mockClient
-  );
+  return new AIService('fake-api-key', AIModel.GEMINI_3_FLASH_PREVIEW, 'pt-BR', () => mockClient);
 }
 
 /** Cria um ICommitMessageResponse com valores padrão */
-function makeCommitData(
-  overrides: Partial<ICommitMessageResponse> = {}
-): ICommitMessageResponse {
-  return { type: 'feat', scope: '', subject: 'add feature', body: '', ...overrides };
+function makeCommitData(overrides: Partial<ICommitMessageResponse> = {}): ICommitMessageResponse {
+  return {
+    type: 'feat',
+    scope: '',
+    subject: 'add feature',
+    body: '',
+    ...overrides
+  };
 }
 
-suite('GeminiService', function () {
+suite('AIService', function () {
   teardown(function () {
     sinon.restore();
   });
@@ -42,9 +41,13 @@ suite('GeminiService', function () {
   });
 
   test('retorna a mensagem de commit sem escopo', async function () {
-    const stub = sinon
-      .stub()
-      .resolves({ text: makeCommitData({ type: 'feat', subject: 'add new feature', scope: '' }) });
+    const stub = sinon.stub().resolves({
+      text: makeCommitData({
+        type: 'feat',
+        subject: 'add new feature',
+        scope: ''
+      })
+    });
     const service = makeService(stub);
 
     const result = await service.generateCommitMessage('diff content');
@@ -52,9 +55,13 @@ suite('GeminiService', function () {
   });
 
   test('retorna a mensagem de commit com escopo', async function () {
-    const stub = sinon
-      .stub()
-      .resolves({ text: makeCommitData({ type: 'feat', scope: 'auth', subject: 'add login' }) });
+    const stub = sinon.stub().resolves({
+      text: makeCommitData({
+        type: 'feat',
+        scope: 'auth',
+        subject: 'add login'
+      })
+    });
     const service = makeService(stub);
 
     const result = await service.generateCommitMessage('diff content');
@@ -62,9 +69,13 @@ suite('GeminiService', function () {
   });
 
   test('retorna a mensagem de commit com body', async function () {
-    const stub = sinon
-      .stub()
-      .resolves({ text: makeCommitData({ type: 'fix', subject: 'correct bug', body: 'explains why' }) });
+    const stub = sinon.stub().resolves({
+      text: makeCommitData({
+        type: 'fix',
+        subject: 'correct bug',
+        body: 'explains why'
+      })
+    });
     const service = makeService(stub);
 
     const result = await service.generateCommitMessage('diff content');
@@ -101,18 +112,15 @@ suite('GeminiService', function () {
   });
 
   test('passa o diff para o client', async function () {
-    const stub = sinon
-      .stub()
-      .resolves({ text: makeCommitData({ type: 'chore', subject: 'update deps' }) });
+    const stub = sinon.stub().resolves({
+      text: makeCommitData({ type: 'chore', subject: 'update deps' })
+    });
     const service = makeService(stub);
 
     await service.generateCommitMessage('my diff');
 
     assert.ok(stub.calledOnce, 'generateContent deve ser chamado uma vez');
     const callArg = stub.firstCall.args[0] as { contents: string };
-    assert.ok(
-      callArg.contents.includes('my diff'),
-      'O prompt deve conter o diff'
-    );
+    assert.ok(callArg.contents.includes('my diff'), 'O prompt deve conter o diff');
   });
 });

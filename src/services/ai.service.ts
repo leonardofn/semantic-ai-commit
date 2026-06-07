@@ -1,5 +1,5 @@
 import { Messages } from '../constants/messages';
-import { GeminiModel } from '../enums/gemini-model';
+import { AIModel } from '../enums/ai-model';
 import {
   AIClientFactory,
   AIResponseSchema,
@@ -9,10 +9,10 @@ import {
 import { IApiErrorMessage } from '../interfaces/api-error';
 import commitPromptTemplate from '../prompts/commit-prompt';
 
-export class GeminiService {
+export class AIService {
   constructor(
     private readonly apiKey: string,
-    private readonly model: GeminiModel,
+    private readonly model: AIModel,
     private readonly language: string,
     private readonly clientFactory?: AIClientFactory
   ) {}
@@ -29,9 +29,7 @@ export class GeminiService {
       const isGemini3 = this.model.toString().startsWith('gemini-3');
 
       const config: IAIGenerateContentConfig = {
-        thinkingConfig: isGemini3
-          ? { thinkingLevel: ThinkingLevel.MEDIUM }
-          : undefined,
+        thinkingConfig: isGemini3 ? { thinkingLevel: ThinkingLevel.MEDIUM } : undefined,
         safetySettings: [
           {
             category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
@@ -48,7 +46,7 @@ export class GeminiService {
 
       // Wrap para satisfazer a interface IAIClient
       client = {
-        generateContent: async (params) => {
+        generateContent: async params => {
           const { model, contents } = params;
           const response = await ai.models.generateContent({
             config,
@@ -83,9 +81,9 @@ export class GeminiService {
 
       return commitMessage;
     } catch (error) {
-      let errorMessage = Messages.commit.geminiError;
+      let errorMessage = Messages.commit.aiError;
 
-      // Tenta extrair mensagem de erro no formato da API do Gemini
+      // Tenta extrair mensagem de erro no formato da API de IA
       const rawMessage = (error as Error)?.message ?? '';
       try {
         const parsed: IApiErrorMessage = JSON.parse(rawMessage);
@@ -104,9 +102,7 @@ export class GeminiService {
 
   private buildPrompt(): string {
     const language =
-      this.language === 'en'
-        ? Messages.language.english
-        : Messages.language.portuguese;
+      this.language === 'en' ? Messages.language.english : Messages.language.portuguese;
 
     return commitPromptTemplate.replace('{{LANGUAGE}}', language);
   }
