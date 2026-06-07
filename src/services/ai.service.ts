@@ -1,5 +1,5 @@
 import { Messages } from '../constants/messages';
-import { GeminiModel } from '../enums/gemini-model';
+import { AIModel } from '../enums/ai-model';
 import {
   AIClientFactory,
   AIResponseSchema,
@@ -9,10 +9,10 @@ import {
 import { IApiErrorMessage } from '../interfaces/api-error';
 import commitPromptTemplate from '../prompts/commit-prompt';
 
-export class GeminiService {
+export class AIService {
   constructor(
     private readonly apiKey: string,
-    private readonly model: GeminiModel,
+    private readonly model: AIModel,
     private readonly language: string,
     private readonly clientFactory?: AIClientFactory
   ) {}
@@ -81,9 +81,9 @@ export class GeminiService {
 
       return commitMessage;
     } catch (error) {
-      let errorMessage = Messages.commit.geminiError;
+      let errorMessage = Messages.commit.aiError;
 
-      // Tenta extrair mensagem de erro no formato da API do Gemini
+      // Tenta extrair mensagem de erro no formato da API de IA
       const rawMessage = (error as Error)?.message ?? '';
       try {
         const parsed: IApiErrorMessage = JSON.parse(rawMessage);

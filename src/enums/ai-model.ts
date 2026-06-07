@@ -1,4 +1,4 @@
-export enum GeminiModel {
+export enum AIModel {
   GEMINI_3_1_PRO_PREVIEW = 'gemini-3.1-pro-preview',
   GEMINI_3_FLASH_PREVIEW = 'gemini-3-flash-preview',
   GEMINI_3_PRO_PREVIEW = 'gemini-3-pro-preview',

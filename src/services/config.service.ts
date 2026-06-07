@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { EXTENSION_NAME, EXTENSION_PUBLISHER } from '../constants/extension';
-import { GeminiModel } from '../enums/gemini-model';
+import { AIModel } from '../enums/ai-model';
 
 export class ConfigService {
   private get config(): vscode.WorkspaceConfiguration {
@@ -15,16 +15,16 @@ export class ConfigService {
     return this.config.get<string>('language') ?? 'pt-BR';
   }
 
-  getGeminiModel(): GeminiModel {
-    return this.config.get<GeminiModel>('geminiModel') ?? GeminiModel.GEMINI_3_FLASH_PREVIEW;
+  getAIModel(): AIModel {
+    return this.config.get<AIModel>('aiModel') ?? AIModel.GEMINI_3_FLASH_PREVIEW;
   }
 
   async updateLanguage(value: string): Promise<void> {
     await this.config.update('language', value, vscode.ConfigurationTarget.Global);
   }
 
-  async updateGeminiModel(value: GeminiModel): Promise<void> {
-    await this.config.update('geminiModel', value, vscode.ConfigurationTarget.Global);
+  async updateAIModel(value: AIModel): Promise<void> {
+    await this.config.update('aiModel', value, vscode.ConfigurationTarget.Global);
   }
 
   async openSettings(): Promise<void> {

@@ -1,19 +1,14 @@
 import assert from 'assert';
 import * as sinon from 'sinon';
 import { Messages } from '../../constants/messages';
-import { GeminiModel } from '../../enums/gemini-model';
+import { AIModel } from '../../enums/ai-model';
 import { IAIClient, ICommitMessageResponse } from '../../interfaces/ai-client';
-import { GeminiService } from '../../services/gemini.service';
+import { AIService } from '../../services/ai.service';
 
-/** Cria um GeminiService com um client mockado */
-function makeService(generateContent: sinon.SinonStub): GeminiService {
+/** Cria um AIService com um client mockado */
+function makeService(generateContent: sinon.SinonStub): AIService {
   const mockClient: IAIClient = { generateContent };
-  return new GeminiService(
-    'fake-api-key',
-    GeminiModel.GEMINI_3_FLASH_PREVIEW,
-    'pt-BR',
-    () => mockClient
-  );
+  return new AIService('fake-api-key', AIModel.GEMINI_3_FLASH_PREVIEW, 'pt-BR', () => mockClient);
 }
 
 /** Cria um ICommitMessageResponse com valores padrão */
@@ -27,7 +22,7 @@ function makeCommitData(overrides: Partial<ICommitMessageResponse> = {}): ICommi
   };
 }
 
-suite('GeminiService', function () {
+suite('AIService', function () {
   teardown(function () {
     sinon.restore();
   });

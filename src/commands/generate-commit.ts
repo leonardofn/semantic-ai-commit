@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { EXTENSION_NAME } from '../constants/extension';
 import { Messages } from '../constants/messages';
+import { AIService } from '../services/ai.service';
 import { ConfigService } from '../services/config.service';
-import { GeminiService } from '../services/gemini.service';
 import { GitService } from '../services/git.service';
 
 export function registerGenerateCommitCommand(): vscode.Disposable {
@@ -61,13 +61,13 @@ export function registerGenerateCommitCommand(): vscode.Disposable {
         },
         async () => {
           try {
-            const geminiService = new GeminiService(
+            const aiService = new AIService(
               apiKey,
-              configService.getGeminiModel(),
+              configService.getAIModel(),
               configService.getLanguage()
             );
 
-            const commitMessage = await geminiService.generateCommitMessage(diff);
+            const commitMessage = await aiService.generateCommitMessage(diff);
             if (commitMessage) {
               repo.inputBox.value = commitMessage;
             } else {

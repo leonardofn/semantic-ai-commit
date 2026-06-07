@@ -9,15 +9,15 @@ export const Messages = {
   },
   commit: {
     noStagedChanges: 'Nenhuma alteração preparada (staged) para o commit.',
-    generating: 'Gerando mensagem de commit com Gemini...',
+    generating: 'Gerando mensagem de commit com IA...',
     generateFailed: 'Não foi possível gerar a mensagem de commit. Por favor, tente novamente.',
     unknownError: 'Erro desconhecido ao gerar commit.',
     noValidResponse: 'O modelo não retornou uma resposta válida. Por favor, tente novamente.',
-    geminiError: 'Erro ao gerar a mensagem de commit com o Gemini. Por favor, tente novamente.'
+    aiError: 'Erro ao gerar a mensagem de commit com a IA. Por favor, tente novamente.'
   },
   apiKey: {
     notConfigured:
-      'A chave de API do Google Gemini não está configurada. Por favor, configure-a nas configurações da extensão.',
+      'A chave de API de IA não está configurada. Por favor, configure-a nas configurações da extensão.',
     configureAction: 'Configurar Chave de API'
   },
   language: {
@@ -27,8 +27,8 @@ export const Messages = {
     portuguese: 'Português do Brasil'
   },
   model: {
-    selectPlaceholder: 'Selecione o modelo Gemini para gerar commits',
-    changed: (label: string) => `Modelo Gemini alterado para: ${label}`
+    selectPlaceholder: 'Selecione o modelo de IA para gerar commits',
+    changed: (label: string) => `Modelo de IA alterado para: ${label}`
   },
   schema: {
     typeDescription: 'O tipo do commit: feat, fix, chore, docs, refactor, style, test ou perf.',

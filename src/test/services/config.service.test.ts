@@ -1,7 +1,7 @@
 import assert from 'assert';
 import * as sinon from 'sinon';
 import * as vscode from 'vscode';
-import { GeminiModel } from '../../enums/gemini-model';
+import { AIModel } from '../../enums/ai-model';
 import { ConfigService } from '../../services/config.service';
 
 suite('ConfigService', function () {
@@ -44,14 +44,14 @@ suite('ConfigService', function () {
     assert.strictEqual(configService.getLanguage(), 'en');
   });
 
-  test('getGeminiModel retorna o modelo padrão se não configurado', function () {
-    configStub.get.withArgs('geminiModel').returns(undefined);
-    assert.strictEqual(configService.getGeminiModel(), GeminiModel.GEMINI_3_FLASH_PREVIEW);
+  test('getAIModel retorna o modelo padrão se não configurado', function () {
+    configStub.get.withArgs('aiModel').returns(undefined);
+    assert.strictEqual(configService.getAIModel(), AIModel.GEMINI_3_FLASH_PREVIEW);
   });
 
-  test('getGeminiModel retorna o modelo configurado', function () {
-    configStub.get.withArgs('geminiModel').returns(GeminiModel.GEMINI_2_5_PRO);
-    assert.strictEqual(configService.getGeminiModel(), GeminiModel.GEMINI_2_5_PRO);
+  test('getAIModel retorna o modelo configurado', function () {
+    configStub.get.withArgs('aiModel').returns(AIModel.GEMINI_2_5_PRO);
+    assert.strictEqual(configService.getAIModel(), AIModel.GEMINI_2_5_PRO);
   });
 
   test('updateLanguage chama config.update com os parâmetros corretos', async function () {
@@ -59,12 +59,12 @@ suite('ConfigService', function () {
     assert.ok(configStub.update.calledWith('language', 'en', vscode.ConfigurationTarget.Global));
   });
 
-  test('updateGeminiModel chama config.update com os parâmetros corretos', async function () {
-    await configService.updateGeminiModel(GeminiModel.GEMINI_3_PRO_PREVIEW);
+  test('updateAIModel chama config.update com os parâmetros corretos', async function () {
+    await configService.updateAIModel(AIModel.GEMINI_3_PRO_PREVIEW);
     assert.ok(
       configStub.update.calledWith(
-        'geminiModel',
-        GeminiModel.GEMINI_3_PRO_PREVIEW,
+        'aiModel',
+        AIModel.GEMINI_3_PRO_PREVIEW,
         vscode.ConfigurationTarget.Global
       )
     );
