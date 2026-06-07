@@ -7,7 +7,14 @@
       "label": "npm: watch",
       "type": "shell",
       "command": "npm run watch",
-      "problemMatcher": "$tsc-watch",
+      "problemMatcher": {
+        "base": "$tsc-watch",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*(webpack --watch|Compiler starting).*$",
+          "endsPattern": "^.*compiled successfully.*$"
+        }
+      },
       "isBackground": true,
       "presentation": {
         "reveal": "never",
