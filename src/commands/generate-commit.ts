@@ -40,10 +40,7 @@ export function registerGenerateCommitCommand(): vscode.Disposable {
       const apiKey = configService.getApiKey();
       if (!apiKey) {
         const action = Messages.apiKey.configureAction;
-        const result = await vscode.window.showErrorMessage(
-          Messages.apiKey.notConfigured,
-          action
-        );
+        const result = await vscode.window.showErrorMessage(Messages.apiKey.notConfigured, action);
         if (result === action) {
           await configService.openSettings();
         }
@@ -70,18 +67,14 @@ export function registerGenerateCommitCommand(): vscode.Disposable {
               configService.getLanguage()
             );
 
-            const commitMessage =
-              await geminiService.generateCommitMessage(diff);
+            const commitMessage = await geminiService.generateCommitMessage(diff);
             if (commitMessage) {
               repo.inputBox.value = commitMessage;
             } else {
               vscode.window.showErrorMessage(Messages.commit.generateFailed);
             }
           } catch (error) {
-            const message =
-              error instanceof Error
-                ? error.message
-                : Messages.commit.unknownError;
+            const message = error instanceof Error ? error.message : Messages.commit.unknownError;
             vscode.window.showErrorMessage(message);
           }
         }

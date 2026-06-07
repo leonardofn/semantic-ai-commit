@@ -77,24 +77,16 @@ suite('GitService', function () {
       ] as any[];
 
       const sourceControl = { rootUri: { toString: () => 'file:///b' } };
-      const result = GitService.resolveRepositoryFromSourceControl(
-        sourceControl,
-        repos
-      );
+      const result = GitService.resolveRepositoryFromSourceControl(sourceControl, repos);
 
       assert.strictEqual(result, repos[1]);
     });
 
     test('retorna undefined se nenhum repositório bater', function () {
-      const repos = [
-        { rootUri: { fsPath: '/a', toString: () => 'file:///a' } }
-      ] as any[];
+      const repos = [{ rootUri: { fsPath: '/a', toString: () => 'file:///a' } }] as any[];
 
       const sourceControl = { rootUri: { toString: () => 'file:///z' } };
-      const result = GitService.resolveRepositoryFromSourceControl(
-        sourceControl,
-        repos
-      );
+      const result = GitService.resolveRepositoryFromSourceControl(sourceControl, repos);
 
       assert.strictEqual(result, undefined);
     });

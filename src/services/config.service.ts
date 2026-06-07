@@ -16,26 +16,15 @@ export class ConfigService {
   }
 
   getGeminiModel(): GeminiModel {
-    return (
-      this.config.get<GeminiModel>('geminiModel') ??
-      GeminiModel.GEMINI_3_FLASH_PREVIEW
-    );
+    return this.config.get<GeminiModel>('geminiModel') ?? GeminiModel.GEMINI_3_FLASH_PREVIEW;
   }
 
   async updateLanguage(value: string): Promise<void> {
-    await this.config.update(
-      'language',
-      value,
-      vscode.ConfigurationTarget.Global
-    );
+    await this.config.update('language', value, vscode.ConfigurationTarget.Global);
   }
 
   async updateGeminiModel(value: GeminiModel): Promise<void> {
-    await this.config.update(
-      'geminiModel',
-      value,
-      vscode.ConfigurationTarget.Global
-    );
+    await this.config.update('geminiModel', value, vscode.ConfigurationTarget.Global);
   }
 
   async openSettings(): Promise<void> {

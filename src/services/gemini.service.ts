@@ -29,9 +29,7 @@ export class GeminiService {
       const isGemini3 = this.model.toString().startsWith('gemini-3');
 
       const config: IAIGenerateContentConfig = {
-        thinkingConfig: isGemini3
-          ? { thinkingLevel: ThinkingLevel.MEDIUM }
-          : undefined,
+        thinkingConfig: isGemini3 ? { thinkingLevel: ThinkingLevel.MEDIUM } : undefined,
         safetySettings: [
           {
             category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
@@ -48,7 +46,7 @@ export class GeminiService {
 
       // Wrap para satisfazer a interface IAIClient
       client = {
-        generateContent: async (params) => {
+        generateContent: async params => {
           const { model, contents } = params;
           const response = await ai.models.generateContent({
             config,
@@ -104,9 +102,7 @@ export class GeminiService {
 
   private buildPrompt(): string {
     const language =
-      this.language === 'en'
-        ? Messages.language.english
-        : Messages.language.portuguese;
+      this.language === 'en' ? Messages.language.english : Messages.language.portuguese;
 
     return commitPromptTemplate.replace('{{LANGUAGE}}', language);
   }

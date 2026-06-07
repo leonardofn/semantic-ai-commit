@@ -46,29 +46,17 @@ suite('ConfigService', function () {
 
   test('getGeminiModel retorna o modelo padrão se não configurado', function () {
     configStub.get.withArgs('geminiModel').returns(undefined);
-    assert.strictEqual(
-      configService.getGeminiModel(),
-      GeminiModel.GEMINI_3_FLASH_PREVIEW
-    );
+    assert.strictEqual(configService.getGeminiModel(), GeminiModel.GEMINI_3_FLASH_PREVIEW);
   });
 
   test('getGeminiModel retorna o modelo configurado', function () {
     configStub.get.withArgs('geminiModel').returns(GeminiModel.GEMINI_2_5_PRO);
-    assert.strictEqual(
-      configService.getGeminiModel(),
-      GeminiModel.GEMINI_2_5_PRO
-    );
+    assert.strictEqual(configService.getGeminiModel(), GeminiModel.GEMINI_2_5_PRO);
   });
 
   test('updateLanguage chama config.update com os parâmetros corretos', async function () {
     await configService.updateLanguage('en');
-    assert.ok(
-      configStub.update.calledWith(
-        'language',
-        'en',
-        vscode.ConfigurationTarget.Global
-      )
-    );
+    assert.ok(configStub.update.calledWith('language', 'en', vscode.ConfigurationTarget.Global));
   });
 
   test('updateGeminiModel chama config.update com os parâmetros corretos', async function () {
