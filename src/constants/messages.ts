@@ -4,6 +4,7 @@ export const Messages = {
     noRepoFound: 'Nenhum repositório Git encontrado.',
     unknownRepo: 'Repositório desconhecido',
     selectRepo: 'Selecione o repositório para gerar o commit',
+    diffTooLarge: 'Diff muito grande. Truncando para não exceder limites de contexto.',
     diffError: 'Erro ao obter diff.',
     diffErrorLog: 'Erro ao obter diff:'
   },
