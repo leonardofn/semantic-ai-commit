@@ -3,6 +3,8 @@ import * as vscode from 'vscode';
 import { Messages } from '../constants/messages';
 import { API, GitExtension, Repository } from '../types/git';
 
+const MAX_DIFF_CHARS = 25000;
+
 export class GitService {
   static getAPI(): API | undefined {
     const extension = vscode.extensions.getExtension<GitExtension>('vscode.git');
@@ -12,14 +14,27 @@ export class GitService {
   static async getStagedDiff(repoPath: string): Promise<string | null> {
     try {
       const git: SimpleGit = simpleGit(repoPath);
-      let diff = await git.diff(['--staged', '--', ':!package-lock.json', ':!*.svg', ':!*.min.js']);
+      let diff = await git.diff([
+        '--staged',
+        '--',
+        ':(exclude)*.lock',
+        ':(exclude)*-lock.*',
+        ':(exclude)*.min.*',
+        ':(exclude)dist/*'
+      ]);
 
-      if (!diff) return null;
+      if (!diff || diff.trim() === '') return null;
 
       // Remove arquivos binários do diff para que a IA não os analise
       diff = diff.replace(/^Binary files .*(\r?\n|$)/gm, '').trim();
 
-      return diff || null;
+      // Trunca o diff se ele exceder o tamanho máximo permitido para evitar problemas de desempenho e consumo alto de tokens.
+      if (diff.length > MAX_DIFF_CHARS) {
+        vscode.window.showWarningMessage(Messages.git.diffTooLarge);
+        return diff.slice(0, MAX_DIFF_CHARS) + '\n\n... [diff truncado por tamanho]';
+      }
+
+      return diff || diff.trim() === '' ? null : diff;
     } catch (error) {
       vscode.window.showErrorMessage(Messages.git.diffError);
       process.stderr.write(`${Messages.git.diffErrorLog}: ${error}\n`);

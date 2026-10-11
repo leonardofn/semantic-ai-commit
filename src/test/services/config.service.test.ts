@@ -50,8 +50,8 @@ suite('ConfigService', function () {
   });
 
   test('getAIModel retorna o modelo configurado', function () {
-    configStub.get.withArgs('aiModel').returns(AIModel.GEMINI_2_5_PRO);
-    assert.strictEqual(configService.getAIModel(), AIModel.GEMINI_2_5_PRO);
+    configStub.get.withArgs('aiModel').returns(AIModel.GEMINI_3_8_FLASH);
+    assert.strictEqual(configService.getAIModel(), AIModel.GEMINI_3_8_FLASH);
   });
 
   test('updateLanguage chama config.update com os parâmetros corretos', async function () {
@@ -60,11 +60,11 @@ suite('ConfigService', function () {
   });
 
   test('updateAIModel chama config.update com os parâmetros corretos', async function () {
-    await configService.updateAIModel(AIModel.GEMINI_3_PRO_PREVIEW);
+    await configService.updateAIModel(AIModel.GEMINI_3_6_FLASH);
     assert.ok(
       configStub.update.calledWith(
         'aiModel',
-        AIModel.GEMINI_3_PRO_PREVIEW,
+        AIModel.GEMINI_3_6_FLASH,
         vscode.ConfigurationTarget.Global
       )
     );

@@ -1,6 +1,6 @@
 # Semantic AI Commit
 
-![Version](https://img.shields.io/badge/version-0.3.0-blue.svg) ![VS Code](https://img.shields.io/badge/VS%20Code-1.91.0%2B-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Contributors](https://img.shields.io/badge/contributors-1-orange.svg)
+![Version](https://img.shields.io/badge/version-0.4.0-blue.svg) ![VS Code](https://img.shields.io/badge/VS%20Code-1.91.0%2B-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Contributors](https://img.shields.io/badge/contributors-1-orange.svg)
 
 ![Logo](https://raw.githubusercontent.com/leonardofn/semantic-ai-commit/main/assets/images/logo.png)
 
@@ -31,7 +31,7 @@ Para configurar, acesse as configurações do VS Code e procure por "Semantic AI
 ```json
 {
   "semantic-ai-commit.apiKey": "SUA_CHAVE_AQUI",
-  "semantic-ai-commit.aiModel": "gemini-3-flash-preview" // Padrão
+  "semantic-ai-commit.aiModel": "gemini-3.8-flash" // Padrão
 }
 ```
 
