@@ -2,6 +2,13 @@
 
 All notable changes to the "Semantic AI Commit" extension will be documented in this file.
 
+## v0.4.0 - 11/10/2026
+
+- Migrated Gemini integration to the Interactions API with clearer error handling.
+- Updated the available Gemini models and set Gemini 3.8 Flash as the default.
+- Improved staged diff retrieval by excluding more generated files and truncating oversized diffs.
+- Refined the commit prompt to generate structured Conventional Commit fields.
+
 ## v0.3.0 - 07/06/2026
 
 - Added support for Gemma 4 models.
