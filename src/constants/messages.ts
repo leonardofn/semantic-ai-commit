@@ -36,5 +36,26 @@ export const Messages = {
       'O escopo da mudança (opcional, em letras minúsculas). Deixe vazio se não houver um claro.',
     subjectDescription: 'A descrição curta e imperativa do commit (máx. 50 caracteres).',
     bodyDescription: 'Uma descrição mais detalhada explicando o PORQUÊ da mudança (opcional).'
+  },
+  ai: {
+    invalidOutputText: 'O modelo completou a execução, mas nenhum texto foi emitido.',
+    interactionFailed: 'A interação falhou internamente no servidor do Gemini.',
+    interactionCancelled: 'A interação foi cancelada antes de concluir.',
+    interactionIncomplete: (tokens: number) =>
+      `A geração foi incompleta (tokens insuficientes ou corte de segurança). Tokens gerados: ${tokens}`,
+    unexpectedStatus: (status: string) => `Status inesperado recebido: ${status}`,
+    invalidJson: (message: string) => `Falha ao decodificar o JSON retornado: ${message}`,
+    missingRequiredFields: 'JSON retornado não cumpre os campos obrigatórios.',
+    invalidApiParams:
+      'Parâmetros inválidos enviados para a API (ex: schema ou configs incorretas).',
+    invalidApiKey: 'Chave de API inválida ou ausente (GEMINI_API_KEY).',
+    forbiddenAccess: 'Acesso negado ao modelo ou projeto especificado.',
+    modelNotFound: 'Modelo não encontrado ou ID de interação anterior inválido.',
+    rateLimitExceeded:
+      'Limite de requisições excedido (Rate limit/Quota). Tente novamente mais tarde.',
+    serviceUnavailable:
+      'Serviço do Google temporariamente indisponível. Aplique retry exponencial.',
+    apiError: (status: number, message: string) => `Erro na API Gemini (${status}): ${message}`,
+    unexpectedError: (message: string) => `Erro inesperado: ${message}`
   }
 };

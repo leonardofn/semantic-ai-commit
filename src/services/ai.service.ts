@@ -49,27 +49,27 @@ export class AIService {
             // Ocorre principalmente quando max_output_tokens é atingido
             // ou se filtros de segurança cortaram a resposta
             throw new Error(
-              `A geração foi incompleta (tokens insuficientes ou corte de segurança). Tokens gerados: ${interaction.usage?.total_output_tokens}`
+              Messages.ai.interactionIncomplete(interaction.usage?.total_output_tokens ?? 0)
             );
           case 'failed':
-            throw new Error('A interação falhou internamente no servidor do Gemini.');
+            throw new Error(Messages.ai.interactionFailed);
           case 'cancelled':
-            throw new Error('A interação foi cancelada antes de concluir.');
+            throw new Error(Messages.ai.interactionCancelled);
           default:
-            throw new Error(`Status inesperado recebido: ${interaction.status}`);
+            throw new Error(Messages.ai.unexpectedStatus(interaction.status));
         }
       }
 
       // Parse e Integridade dos Dados
       if (!interaction.output_text) {
-        throw new Error('O modelo completou a execução, mas nenhum texto foi emitido.');
+        throw new Error(Messages.ai.invalidOutputText);
       }
 
       try {
         const data: ICommitResponse = JSON.parse(interaction.output_text);
 
         if (!data.type || !data.subject) {
-          throw new Error('JSON retornado não cumpre os campos obrigatórios.');
+          throw new Error(Messages.ai.missingRequiredFields);
         }
 
         const { type, scope, subject, body } = data;
@@ -77,7 +77,7 @@ export class AIService {
         const fullCommit = body ? `${header}\n\n${body}` : header;
         return fullCommit;
       } catch (parseError) {
-        throw new Error(`Falha ao decodificar o JSON retornado: ${(parseError as Error).message}`);
+        throw new Error(Messages.ai.invalidJson((parseError as Error).message));
       }
     } catch (error: unknown) {
       // Tratamento de Erros da API / SDK
@@ -88,31 +88,25 @@ export class AIService {
 
         switch (error.status) {
           case 400:
-            throw new Error(
-              'Parâmetros inválidos enviados para a API (ex: schema ou configs incorretas).'
-            );
+            throw new Error(Messages.ai.invalidApiParams);
           case 401:
-            throw new Error('Chave de API inválida ou ausente (GEMINI_API_KEY).');
+            throw new Error(Messages.ai.invalidApiKey);
           case 403:
-            throw new Error('Acesso negado ao modelo ou projeto especificado.');
+            throw new Error(Messages.ai.forbiddenAccess);
           case 404:
-            throw new Error('Modelo não encontrado ou ID de interação anterior inválido.');
+            throw new Error(Messages.ai.modelNotFound);
           case 429:
             // Rate Limit / Quota esgotada
-            throw new Error(
-              'Limite de requisições excedido (Rate limit/Quota). Tente novamente mais tarde.'
-            );
+            throw new Error(Messages.ai.rateLimitExceeded);
           case 500:
           case 503:
-            throw new Error(
-              'Serviço do Google temporariamente indisponível. Aplique retry exponencial.'
-            );
+            throw new Error(Messages.ai.serviceUnavailable);
           default:
-            throw new Error(`Erro na API Gemini (${error.status}): ${error.message}`);
+            throw new Error(Messages.ai.apiError(error.status, error.message));
         }
       }
 
-      throw new Error(`Erro inesperado: ${(error as Error).message}`);
+      throw new Error(Messages.ai.unexpectedError((error as Error).message));
     }
   }
 
