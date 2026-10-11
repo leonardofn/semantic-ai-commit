@@ -10,29 +10,33 @@ const MODEL_OPTIONS: {
   value: AIModel;
 }[] = [
   {
-    label: 'Gemini 3.1 Pro',
-    description: 'O modelo mais avançado para problemas altamente complexos.',
-    value: AIModel.GEMINI_3_1_PRO_PREVIEW
+    label: 'Gemini 3.8 Flash',
+    description:
+      'Modelo Flash mais inteligente, projetado para engenharia de software de longo prazo, agentes autônomos e fluxos de trabalho corporativos complexos.',
+    value: AIModel.GEMINI_3_8_FLASH
+  },
+  {
+    label: 'Gemini 3.6 Flash',
+    description:
+      'Modelo Flash da geração anterior, que equilibra velocidade e recursos multimodais em tarefas agênticas gerais e cotidianas.',
+    value: AIModel.GEMINI_3_6_FLASH
+  },
+  {
+    label: 'Gemini 3.5 Flash Lite',
+    description:
+      'Modelo 3.5 mais rápido e econômico para execução de alta capacidade de processamento.',
+    value: AIModel.GEMINI_3_5_FLASH_LITE
+  },
+  {
+    label: 'Gemini 3.1 Flash Lite',
+    description:
+      'Modelo multimodal econômico e de baixa latência otimizado para tarefas leves e de alta frequência.',
+    value: AIModel.GEMINI_3_1_FLASH_LITE
   },
   {
     label: 'Gemini 3 Flash',
     description: 'O poder do Pro com a velocidade e eficiência do Flash.',
     value: AIModel.GEMINI_3_FLASH_PREVIEW
-  },
-  {
-    label: 'Gemini 3 Pro',
-    description: 'Raciocínio de alto desempenho para tarefas complexas.',
-    value: AIModel.GEMINI_3_PRO_PREVIEW
-  },
-  {
-    label: 'Gemini 2.5 Flash',
-    description: 'Rápido e eficiente, ideal para tarefas simples.',
-    value: AIModel.GEMINI_2_5_FLASH
-  },
-  {
-    label: 'Gemini 2.5 Pro',
-    description: 'Raciocínio avançado para resolução de problemas.',
-    value: AIModel.GEMINI_2_5_PRO
   },
   {
     label: 'Gemma 4 26B A4B IT',
