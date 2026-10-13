@@ -34,7 +34,7 @@ export class GitService {
         return diff.slice(0, MAX_DIFF_CHARS) + '\n\n... [diff truncado por tamanho]';
       }
 
-      return diff || diff.trim() === '' ? null : diff;
+      return diff;
     } catch (error) {
       vscode.window.showErrorMessage(Messages.git.diffError);
       process.stderr.write(`${Messages.git.diffErrorLog}: ${error}\n`);
