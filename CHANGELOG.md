@@ -2,6 +2,10 @@
 
 All notable changes to the "Semantic AI Commit" extension will be documented in this file.
 
+## v0.4.1 - 13/10/2026
+
+- Fixed staged diff retrieval so valid staged changes are preserved for commit message generation.
+
 ## v0.4.0 - 11/10/2026
 
 - Migrated Gemini integration to the Interactions API with clearer error handling.
